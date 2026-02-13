@@ -23,7 +23,7 @@ export default function LoginPage() {
         await signInWithEmailAndPassword(auth, email, password);
       }
       // Si todo va bien, vamos al home
-      router.push('/'); 
+      router.push('/dashboard'); 
     } catch (err: any) {
       console.error(err);
       // Mensajes de error amigables
