@@ -1,0 +1,6 @@
+.git
+.gitignore
+__pycache__
+venv/
+README.md
+firebase-credentials.json

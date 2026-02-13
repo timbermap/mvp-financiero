@@ -1,0 +1,16 @@
+# .gitignore
+
+# Ignorar archivos de entorno
+.env
+.env.local
+
+# Ignorar credenciales de Firebase
+firebase-credentials.json
+
+# Ignorar carpetas de Python y Node
+__pycache__/
+venv/
+node_modules/
+
+# Ignorar archivos del sistema operativo
+.DS_Store
