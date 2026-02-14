@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 import api from '@/services/api';
 import { LogOut, TrendingUp } from 'lucide-react';
 import { auth } from '@/lib/firebase';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from '@/components/DatePickerField'
+
 
 // Union type FREE / PRO
 type SectorData =
