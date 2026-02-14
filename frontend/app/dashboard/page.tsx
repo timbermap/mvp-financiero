@@ -81,25 +81,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
-      <nav className="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="text-blue-600" />
-          <h1 className="font-bold text-xl text-gray-800">MVP Financiero</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500 hidden md:block">{user.email}</span>
-          <span className={`px-2 py-1 rounded text-xs font-bold ${isFreeUser ? 'bg-gray-200 text-gray-700' : 'bg-yellow-100 text-yellow-700'}`}>
-            {isFreeUser ? 'PLAN FREE' : 'PLAN PRO'}
-          </span>
-          <button 
-            onClick={() => auth.signOut()}
-            className="text-gray-500 hover:text-red-600 transition"
-            title="Cerrar Sesión"
-          >
-            <LogOut size={20} />
-          </button>
-        </div>
-      </nav>
 
       {/* Contenido Principal */}
       <main className="max-w-6xl mx-auto p-6">
