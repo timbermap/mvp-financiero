@@ -6,8 +6,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/services/api';
 import { LogOut, TrendingUp } from 'lucide-react';
 import { auth } from '@/lib/firebase';
-import DatePicker from '@/components/DatePickerField'
-
+import DatePicker from '@/components/DatePickerField';
 
 // Union type FREE / PRO
 type SectorData =
@@ -58,11 +57,12 @@ export default function RotationsPage() {
 
       try {
         const response = await api.get('/api/v1/analysis-dates');
-        const parsedDates = response.data.map((d: string) => new Date(d));
+        const parsedDates: Date[] = response.data.map(
+          (d: string) => new Date(d)
+        );
 
         setAvailableDates(parsedDates);
 
-        // Seleccionar automáticamente la última fecha
         if (parsedDates.length > 0) {
           setSelectedDate(parsedDates[0]);
         }
@@ -85,7 +85,8 @@ export default function RotationsPage() {
       setData([]);
 
       try {
-        const formattedDate = selectedDate.toISOString().split('T')[0];
+        const formattedDate =
+          selectedDate.toISOString().split('T')[0];
 
         const response = await api.get('/api/v1/dashboard', {
           params: { date: formattedDate },
@@ -160,7 +161,8 @@ export default function RotationsPage() {
             Rotación de Sectores Semanal
           </h2>
           <p className="text-gray-600">
-            Análisis basado en IA de los principales sectores del S&P 500.
+            Análisis basado en IA de los principales sectores del
+            S&P 500.
           </p>
 
           {/* DatePicker */}
@@ -171,7 +173,9 @@ export default function RotationsPage() {
 
             <DatePicker
               selected={selectedDate}
-              onChange={(date: Date) => setSelectedDate(date)}
+              onChange={(date: Date | null) =>
+                setSelectedDate(date)
+              }
               dateFormat="dd/MM/yyyy"
               includeDates={availableDates}
               maxDate={new Date()}
@@ -234,72 +238,56 @@ export default function RotationsPage() {
                     </div>
                   </div>
 
-                  {!isFreeUser && 'market_context' in item && (
-                    <>
-                      <div>
-                        <h4 className="font-semibold">
-                          Market Context:
-                        </h4>
-                        <p>{item.market_context}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold">
-                          Phase and Health:
-                        </h4>
-                        <p>{item.phase_and_health}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold">
-                          Rationale and Elliott Wave:
-                        </h4>
-                        <p>{item.rationale_and_elliott_wave}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold">
-                          Risk and Volume Profile:
-                        </h4>
-                        <p>{item.risk_and_volume_profile}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold">
-                          Execution Protocol:
-                        </h4>
-                        <p>{item.execution_protocol}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold">
-                          Top 3 Tickers:
-                        </h4>
-                        <p>{item.top_3_tickers}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold">
-                          Sector Portfolio %:
-                        </h4>
-                        <p>
-                          {item.sector_portfolio_percentage}%
-                        </p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold">
-                          Week Targets:
-                        </h4>
-                        <p>{item.week_targets}</p>
-                      </div>
-                    </>
-                  )}
+                  {!isFreeUser &&
+                    'market_context' in item && (
+                      <>
+                        <Section
+                          title="Market Context"
+                          text={item.market_context}
+                        />
+                        <Section
+                          title="Phase and Health"
+                          text={item.phase_and_health}
+                        />
+                        <Section
+                          title="Rationale and Elliott Wave"
+                          text={
+                            item.rationale_and_elliott_wave
+                          }
+                        />
+                        <Section
+                          title="Risk and Volume Profile"
+                          text={
+                            item.risk_and_volume_profile
+                          }
+                        />
+                        <Section
+                          title="Execution Protocol"
+                          text={item.execution_protocol}
+                        />
+                        <Section
+                          title="Top 3 Tickers"
+                          text={item.top_3_tickers}
+                        />
+                        <Section
+                          title="Sector Portfolio %"
+                          text={
+                            item.sector_portfolio_percentage +
+                            '%'
+                          }
+                        />
+                        <Section
+                          title="Week Targets"
+                          text={item.week_targets}
+                        />
+                      </>
+                    )}
 
                   {isFreeUser && (
                     <div className="mt-6 text-center">
                       <p className="text-xs text-gray-500">
-                        Actualiza a PRO para más detalles avanzados.
+                        Actualiza a PRO para más detalles
+                        avanzados.
                       </p>
                     </div>
                   )}
@@ -309,6 +297,21 @@ export default function RotationsPage() {
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  text,
+}: {
+  title: string;
+  text: string;
+}) {
+  return (
+    <div>
+      <h4 className="font-semibold">{title}:</h4>
+      <p>{text}</p>
     </div>
   );
 }
