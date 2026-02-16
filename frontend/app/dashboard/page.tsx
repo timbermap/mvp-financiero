@@ -122,7 +122,7 @@ export default function DashboardPage() {
   }
 
   const dashboardMatrixData = [
-    // --- Fila: Bajo Riesgo ---
+    // --- Fila: Bajo Riesgo (arriba) ---
     { risk: 'Low', horizon: '1 Week', icon: <Shield className="w-8 h-8" />, title: "Low Risk / 1 Week", description: "Capital preservation strategies for short-term market stability." },
     { risk: 'Low', horizon: '2-4 Weeks', icon: <Shield className="w-8 h-8" />, title: "Low Risk / 2-4 Weeks", description: "Defensive sector plays with a focus on minimizing volatility." },
     { risk: 'Low', horizon: '1 Year', icon: <Shield className="w-8 h-8" />, title: "Low Risk / 1 Year", description: "Long-term holdings in historically stable and dividend-paying sectors." },
@@ -130,7 +130,7 @@ export default function DashboardPage() {
     { risk: 'Medium', horizon: '1 Week', icon: <ShieldCheck className="w-8 h-8" />, title: "Medium Risk / 1 Week", description: "Tactical trades based on immediate bullish signals and trends." },
     { risk: 'Medium', horizon: '2-4 Weeks', icon: <ShieldCheck className="w-8 h-8" />, title: "Medium Risk / 2-4 Weeks", description: "Core strategy focusing on sectors with confirmed upward momentum." },
     { risk: 'Medium', horizon: '1 Year', icon: <ShieldCheck className="w-8 h-8" />, title: "Medium Risk / 1 Year", description: "Investing in sectors poised for cyclical growth over the next year." },
-    // --- Fila: Alto Riesgo ---
+    // --- Fila: Alto Riesgo (abajo) ---
     { risk: 'High', horizon: '1 Week', icon: <ShieldAlert className="w-8 h-8" />, title: "High Risk / 1 Week", description: "Aggressive, speculative plays on highly volatile sectors." },
     { risk: 'High', horizon: '2-4 Weeks', icon: <ShieldAlert className="w-8 h-8" />, title: "High Risk / 2-4 Weeks", description: "Targeting breakout sectors with high growth potential and risk." },
     { risk: 'High', horizon: '1 Year', icon: <ShieldAlert className="w-8 h-8" />, title: "High Risk / 1 Year", description: "Thematic investments in disruptive and emerging industries." },
@@ -151,6 +151,16 @@ export default function DashboardPage() {
             const isFreeAccess = card.risk === 'Medium' && card.horizon === '2-4 Weeks';
             const isLocked = subscriptionTier === 'FREE' && !isFreeAccess;
 
+            // Map horizons to new scenarios
+            let scenario;
+            if (card.horizon === '1 Week') {
+              scenario = 'week';
+            } else if (card.horizon === '2-4 Weeks') {
+              scenario = 'month';
+            } else if (card.horizon === '1 Year') {
+              scenario = 'year';
+            }
+
             return (
               <DashboardCard
                 key={index}
@@ -159,8 +169,8 @@ export default function DashboardPage() {
                 description={card.description}
                 isLocked={isLocked}
                 links={[
-                  { name: 'Sector Rotation', href: `/dashboard/sector-rotation?risk=${card.risk}&horizon=${card.horizon}`, icon: <BarChartHorizontalBig className="w-4 h-4"/> },
-                  { name: 'Portfolio', href: `/dashboard/portfolio?risk=${card.risk}&horizon=${card.horizon}`, icon: <PieChart className="w-4 h-4" /> },
+                  { name: 'Sector Rotation', href: `/product/rotations?risk=${card.risk.toLowerCase()}&horizon=${scenario}`, icon: <BarChartHorizontalBig className="w-4 h-4"/> },
+                  { name: 'Portfolio', href: `/dashboard/portfolio?risk=${card.risk.toLowerCase()}&horizon=${scenario}`, icon: <PieChart className="w-4 h-4" /> },
                 ]}
               />
             );
