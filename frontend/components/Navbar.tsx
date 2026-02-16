@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
+import api from '@/services/api';
 
 // Íconos
 const MenuIcon = () => (
@@ -27,15 +28,30 @@ export default function Navbar() {
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ email: string; subscription_tier: string } | null>(null);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Fetch user profile when user is logged in
+  useEffect(() => {
+    if (user && !loading) {
+      api.get('/api/v1/users/me')
+        .then((res) => {
+          setUserProfile(res.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching user profile:', error);
+        });
+    }
+  }, [user, loading]);
 
   // Logout + redirect
   const handleLogout = async () => {
     await signOut(auth);
     setIsUserMenuOpen(false);
     setIsMobileMenuOpen(false);
+    setUserProfile(null);
     router.push('/');
   };
 
@@ -112,8 +128,11 @@ export default function Navbar() {
                 {isUserMenuOpen && (
                   <div className="absolute right-0 top-full w-56 pt-2">
                     <div className="bg-white rounded-md shadow-xl py-1">
-                      <div className="px-4 py-2 border-b text-sm text-gray-800 truncate">
-                        {user.email}
+                      <div className="px-4 py-2 border-b text-sm text-gray-800">
+                        <div className="truncate">{userProfile?.email || user.email}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Tier: {userProfile?.subscription_tier || 'Loading...'}
+                        </div>
                       </div>
 
                       <Link

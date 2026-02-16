@@ -6,6 +6,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 // Definimos qué información vamos a compartir
+
 interface AuthContextType {
   user: User | null; // El usuario o nulo si no hay nadie
   loading: boolean;  // ¿Estamos esperando a Firebase?
