@@ -77,7 +77,7 @@ const DashboardCard = ({ icon, title, description, isLocked, links }: DashboardC
 export default function DashboardPage() {
   // --- Usamos el hook para obtener el estado real de autenticación y el tier ---
   // Asumimos que tu AuthContext ahora también provee 'userTier'
-  const { user, userTier, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   // --- Estado de Carga Profesional ---
   // Mientras se verifica el usuario, mostramos un loader para evitar parpadeos
