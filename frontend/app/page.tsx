@@ -1,26 +1,38 @@
 'use client';
 
-import { useEffect, useState, ReactNode } from 'react'; // <-- Se añade ReactNode
+import { useEffect, useState, ReactNode } from 'react';
 import api from '@/services/api';
 import SectorTable from '@/components/sector/SectorTable';
-import { SectorData } from '@/components/sector/types';
+// import { SectorData } from '@/components/sector/types'; // Podrías necesitar ajustar este tipo
 import {
   ChevronRight,
-  TrendingUp,
-  BarChart3,
-  PieChart,
   Users,
-  Shield,
   Zap,
   Activity,
-  Anchor
+  Anchor,
+  BarChart3,
+  PieChart,
+  TrendingUp
 } from 'lucide-react';
+
+// --- AJUSTE DE TIPO ---
+// Este tipo ahora coincide con lo que tu backend envía en `SectorOpenSchema`
+// Asegúrate de que tu tipo global `SectorData` se vea así.
+export interface SectorData {
+  analysis_date: string;
+  rank: number;
+  sector: string;
+  score: number; // <-- El campo se llama 'score', no 'momentum_score'
+  signal: string;
+  // ... y otros campos que puedas necesitar
+}
+
 
 /* ---------------------------------------------------
    HERO – MINI SECTOR CARD (2x2 MATRIX)
 --------------------------------------------------- */
 
-const getRegime = (signal: string, momentum?: number) => {
+const getRegime = (signal: string) => {
   if (signal === 'Neutral') return 'Leading';
   if (signal === 'Bullish') return 'Improving';
   if (signal === 'Bearish') return 'Weakening';
@@ -28,75 +40,35 @@ const getRegime = (signal: string, momentum?: number) => {
 };
 
 const regimeStyles = {
-  Leading: {
-    border: 'border-emerald-500',
-    bg: 'bg-emerald-500/10',
-    text: 'text-emerald-400'
-  },
-  Improving: {
-    border: 'border-sky-500',
-    bg: 'bg-sky-500/10',
-    text: 'text-sky-400'
-  },
-  Weakening: {
-    border: 'border-amber-500',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-400'
-  },
-  Lagging: {
-    border: 'border-rose-500',
-    bg: 'bg-rose-500/10',
-    text: 'text-rose-400'
-  }
+  Leading: { border: 'border-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-400' },
+  Improving: { border: 'border-sky-500', bg: 'bg-sky-500/10', text: 'text-sky-400' },
+  Weakening: { border: 'border-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-400' },
+  Lagging: { border: 'border-rose-500', bg: 'bg-rose-500/10', text: 'text-rose-400' }
 };
 
-// --- CORRECCIÓN AQUÍ ---
-// Se define un tipo para las props del componente
 type HeroSectorCardProps = {
   sector: string;
   signal: string;
-  momentum?: number;
+  momentum: number; // El prop se llama 'momentum' internamente, pero le pasaremos el 'score'
   rank: number;
 };
 
 const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps) => {
-  const regime = getRegime(signal, momentum);
-  // Aseguramos que 'regime' sea una clave válida para evitar errores
+  const regime = getRegime(signal);
   const styles = regimeStyles[regime as keyof typeof regimeStyles];
 
   return (
-    <div
-      className={`
-        relative group rounded-xl p-5 border
-        ${styles.border} ${styles.bg}
-        bg-slate-900/70
-        transition-all
-      `}
-    >
-      {/* HEADER */}
+    <div className={`relative group rounded-xl p-5 border ${styles.border} ${styles.bg} bg-slate-900/70 transition-all`}>
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-semibold text-white">{sector}</h4>
         <span className="text-xs text-slate-400">#{rank}</span>
       </div>
-
-      {/* REGIME */}
-      <p className={`text-sm font-medium ${styles.text}`}>
-        {regime}
-      </p>
-
-      {/* TOOLTIP */}
-      <div className="
-        absolute bottom-full left-1/2 -translate-x-1/2 mb-3
-        w-44 rounded-lg bg-slate-800 text-xs text-slate-200
-        px-3 py-2 opacity-0 scale-95
-        group-hover:opacity-100 group-hover:scale-100
-        transition-all pointer-events-none
-        shadow-xl border border-slate-700
-      ">
+      <p className={`text-sm font-medium ${styles.text}`}>{regime}</p>
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-44 rounded-lg bg-slate-800 text-xs text-slate-200 px-3 py-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none shadow-xl border border-slate-700">
         <div className="font-semibold mb-1">{sector}</div>
         <div>Signal: <span className="text-white">{signal}</span></div>
         <div>
-          Momentum:{' '}
+          Score:{' '} {/* Cambiado de Momentum a Score para ser más preciso */}
           <span className="text-white">
             {momentum !== undefined ? momentum.toFixed(2) : 'N/A'}
           </span>
@@ -106,55 +78,6 @@ const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps)
   );
 };
 
-
-/* ---------------------------------------------------
-   DEEP DIVE – SECTOR CARD
---------------------------------------------------- */
-
-// --- CORRECCIÓN AQUÍ ---
-// Se define un tipo para las props de este componente también
-type SectorCardProps = {
-  icon: ReactNode;
-  color: string;
-  sector: string;
-  signal: string;
-  tickers: string;
-  volatility: string;
-  outlook: string;
-};
-
-const SectorCard = ({
-  icon,
-  color,
-  sector,
-  signal,
-  tickers,
-  volatility,
-  outlook
-}: SectorCardProps) => (
-  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200">
-    <div className="flex items-center mb-4">
-      <div className={`w-12 h-12 bg-${color}-500 rounded-lg flex items-center justify-center mr-4`}>
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-semibold text-slate-900 text-lg">{sector}</h3>
-        <p className={`text-sm font-medium text-${color}-600`}>{signal}</p>
-      </div>
-    </div>
-    <ul className="text-sm text-slate-600 space-y-2">
-      <li><span className="font-medium text-slate-800">Top Tickers:</span> {tickers}</li>
-      <li><span className="font-medium text-slate-800">Volatility:</span> {volatility}</li>
-      <li><span className="font-medium text-slate-800">Outlook:</span> {outlook}</li>
-    </ul>
-    <a
-      href="/signup"
-      className={`block mt-5 text-sm font-semibold text-${color}-600 hover:text-${color}-700 transition-colors`}
-    >
-      View Full Analysis →
-    </a>
-  </div>
-);
 
 /* ---------------------------------------------------
    PAGE
@@ -183,27 +106,13 @@ export default function LandingPage() {
     fetchPublicData();
   }, []);
 
-  // Create a shuffled copy of the data array
   const shuffled = data.slice().sort(() => Math.random() - 0.5);
   const heroSectors = shuffled.slice(0, 4);
-
-  // El componente SectorCard no se usa en esta página, pero lo dejamos corregido
-  // por si se usa en el futuro o en otro lugar.
-  const sectorVisuals = {
-    Technology: { icon: <Zap className="w-6 h-6 text-white" />, color: 'sky' },
-    Healthcare: { icon: <Activity className="w-6 h-6 text-white" />, color: 'teal' },
-    Financials: { icon: <BarChart3 className="w-6 h-6 text-white" />, color: 'indigo' },
-    Energy: { icon: <TrendingUp className="w-6 h-6 text-white" />, color: 'amber' },
-    Industrials: { icon: <Anchor className="w-6 h-6 text-white" />, color: 'rose' },
-    Default: { icon: <PieChart className="w-6 h-6 text-white" />, color: 'slate' }
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
 
-      {/* ---------------------------------------------------
-          HERO
-      --------------------------------------------------- */}
+      {/* HERO */}
       <section className="relative bg-slate-900 text-white min-h-screen flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-grid-slate-800 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
         <div className="absolute inset-0 pointer-events-none [background:radial-gradient(ellipse_at_center,transparent_20%,#020617)]" />
@@ -217,10 +126,7 @@ export default function LandingPage() {
               Data-driven weekly signals to overweight or underweight sectors.
               Build smarter portfolios with proprietary momentum analysis.
             </p>
-            <a
-              href="/signup"
-              className="inline-flex items-center px-8 py-4 bg-teal-500 text-white font-semibold rounded-lg shadow-lg hover:bg-teal-600 transition-all duration-300"
-            >
+            <a href="/signup" className="inline-flex items-center px-8 py-4 bg-teal-500 text-white font-semibold rounded-lg shadow-lg hover:bg-teal-600 transition-all duration-300">
               Get Started for Free
               <ChevronRight className="ml-2 w-5 h-5" />
             </a>
@@ -230,29 +136,25 @@ export default function LandingPage() {
           <div className="hidden md:grid grid-cols-2 gap-4">
             {loading
               ? [...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-28 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse"
-                  />
+                  <div key={i} className="h-28 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse" />
                 ))
               : heroSectors.map((sector) => (
                   <HeroSectorCard
                     key={sector.sector}
                     sector={sector.sector}
                     signal={sector.signal}
-                    momentum={sector.momentum_score}
+                    // --- CAMBIO CLAVE AQUÍ ---
+                    // Usamos 'sector.score' que viene del backend
+                    momentum={sector.score} 
                     rank={sector.rank}
                   />
                 ))
-                }
+            }
           </div>
         </div>
       </section>
-
  
-      {/* ---------------------------------------------------
-          LIVE TABLE
-      --------------------------------------------------- */}
+      {/* LIVE TABLE */}
       <section className="py-24 bg-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           {loading ? (
@@ -265,18 +167,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ---------------------------------------------------
-          CTA
-      --------------------------------------------------- */}
+      {/* CTA */}
       <section className="py-24 bg-white text-center">
         <h2 className="text-4xl font-bold mb-4">Built for Every Investor</h2>
         <p className="text-xl text-slate-600 mb-8">
           From free previews to premium portfolio tools.
         </p>
-        <a
-          href="/signup"
-          className="inline-flex items-center px-10 py-4 bg-teal-500 text-white font-bold rounded-lg shadow-lg hover:bg-teal-600 transition-all"
-        >
+        <a href="/signup" className="inline-flex items-center px-10 py-4 bg-teal-500 text-white font-bold rounded-lg shadow-lg hover:bg-teal-600 transition-all">
           Join Thousands of Investors
           <Users className="ml-3 w-6 h-6" />
         </a>
