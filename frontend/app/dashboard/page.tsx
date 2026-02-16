@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
   Shield, 
@@ -16,6 +16,7 @@ import {
 
 // --- ¡IMPORTAMOS EL HOOK REAL DE TU APLICACIÓN! ---
 import { useAuth } from '@/context/AuthContext'; 
+import api from '@/services/api';
 
 /* ---------------------------------------------------
    COMPONENTE DE TARJETA DEL DASHBOARD (DashboardCard)
@@ -75,17 +76,36 @@ const DashboardCard = ({ icon, title, description, isLocked, links }: DashboardC
    PÁGINA PRINCIPAL DEL DASHBOARD (CON AUTENTICACIÓN REAL)
 --------------------------------------------------- */
 export default function DashboardPage() {
-  // --- Usamos el hook para obtener el estado real de autenticación y el tier ---
-  // Asumimos que tu AuthContext ahora también provee 'userTier'
+  // --- Usamos el hook para obtener el estado real de autenticación ---
   const { user, loading } = useAuth();
 
-  // --- Estado de Carga Profesional ---
-  // Mientras se verifica el usuario, mostramos un loader para evitar parpadeos
-  if (loading) {
+  // --- Estado para el tier del usuario, fetched from API ---
+  const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
+  const [tierLoading, setTierLoading] = useState(true);
+
+  // --- Fetch user tier from API after auth is loaded ---
+  useEffect(() => {
+    if (!loading && user) {
+      api.get('/api/v1/users/me')
+        .then((res) => {
+          setSubscriptionTier(res.data.subscription_tier);
+          setTierLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching user profile:', error);
+          setTierLoading(false);
+        });
+    } else if (!loading && !user) {
+      setTierLoading(false);
+    }
+  }, [loading, user]);
+
+  // --- Estado de Carga Profesional (Auth + Tier) ---
+  if (loading || tierLoading) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
         <Loader2 className="w-12 h-12 animate-spin text-teal-500" />
-        <p className="mt-4 text-lg text-slate-400">Authenticating...</p>
+        <p className="mt-4 text-lg text-slate-400">Loading dashboard...</p>
       </div>
     );
   }
@@ -129,7 +149,7 @@ export default function DashboardPage() {
             
             // --- LÓGICA DE ACCESO CON DATOS REALES DEL BACKEND ---
             const isFreeAccess = card.risk === 'Medium' && card.horizon === '2-4 Weeks';
-            const isLocked = userTier === 'FREE' && !isFreeAccess;
+            const isLocked = subscriptionTier === 'FREE' && !isFreeAccess;
 
             return (
               <DashboardCard
