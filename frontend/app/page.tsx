@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react'; // <-- Se añade ReactNode
 import api from '@/services/api';
 import SectorTable from '@/components/sector/SectorTable';
 import { SectorData } from '@/components/sector/types';
@@ -50,9 +50,19 @@ const regimeStyles = {
   }
 };
 
-const HeroSectorCard = ({ sector, signal, momentum, rank }) => {
+// --- CORRECCIÓN AQUÍ ---
+// Se define un tipo para las props del componente
+type HeroSectorCardProps = {
+  sector: string;
+  signal: string;
+  momentum?: number;
+  rank: number;
+};
+
+const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps) => {
   const regime = getRegime(signal, momentum);
-  const styles = regimeStyles[regime];
+  // Aseguramos que 'regime' sea una clave válida para evitar errores
+  const styles = regimeStyles[regime as keyof typeof regimeStyles];
 
   return (
     <div
@@ -100,6 +110,19 @@ const HeroSectorCard = ({ sector, signal, momentum, rank }) => {
 /* ---------------------------------------------------
    DEEP DIVE – SECTOR CARD
 --------------------------------------------------- */
+
+// --- CORRECCIÓN AQUÍ ---
+// Se define un tipo para las props de este componente también
+type SectorCardProps = {
+  icon: ReactNode;
+  color: string;
+  sector: string;
+  signal: string;
+  tickers: string;
+  volatility: string;
+  outlook: string;
+};
+
 const SectorCard = ({
   icon,
   color,
@@ -108,7 +131,7 @@ const SectorCard = ({
   tickers,
   volatility,
   outlook
-}) => (
+}: SectorCardProps) => (
   <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200">
     <div className="flex items-center mb-4">
       <div className={`w-12 h-12 bg-${color}-500 rounded-lg flex items-center justify-center mr-4`}>
@@ -164,8 +187,8 @@ export default function LandingPage() {
   const shuffled = data.slice().sort(() => Math.random() - 0.5);
   const heroSectors = shuffled.slice(0, 4);
 
-  const topSectors = data.slice(0, 3);
-
+  // El componente SectorCard no se usa en esta página, pero lo dejamos corregido
+  // por si se usa en el futuro o en otro lugar.
   const sectorVisuals = {
     Technology: { icon: <Zap className="w-6 h-6 text-white" />, color: 'sky' },
     Healthcare: { icon: <Activity className="w-6 h-6 text-white" />, color: 'teal' },
@@ -212,7 +235,7 @@ export default function LandingPage() {
                     className="h-28 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse"
                   />
                 ))
-              : heroSectors.map((sector, index) => (
+              : heroSectors.map((sector) => (
                   <HeroSectorCard
                     key={sector.sector}
                     sector={sector.sector}
