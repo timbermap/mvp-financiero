@@ -3,7 +3,15 @@
 import { useEffect, useState } from 'react';
 import api from '@/services/api';
 import SectorTable from '@/components/sector/SectorTable';
-import { ChevronRight, Users, Calendar, BarChart3 } from 'lucide-react';
+import { 
+  ChevronRight, 
+  Users, 
+  Calendar, 
+  BarChart3,
+  Zap, // High Risk
+  TrendingUp, // Medium Risk
+  ShieldCheck, // Low Risk
+} from 'lucide-react';
 
 // --- TIPOS DE DATOS ---
 export interface SectorData {
@@ -17,7 +25,6 @@ export interface SectorData {
 // --- FUNCIÓN HELPER PARA FORMATEAR FECHA ---
 const formatDate = (isoDate: string | null): string => {
   if (!isoDate) return 'N/A';
-  // Asegurarse de que la fecha se interpreta como UTC para evitar problemas de zona horaria
   const date = new Date(isoDate + 'T00:00:00Z');
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -72,6 +79,34 @@ const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps)
   );
 };
 
+/* ---------------------------------------------------
+   NUEVO COMPONENTE SIMPLIFICADO PARA LA MATRIZ 3X3
+--------------------------------------------------- */
+type MatrixCellProps = {
+  riskLevel: 'low' | 'medium' | 'high';
+  title: string;
+  description: string;
+};
+
+const riskStyles = {
+  high: { icon: <Zap className="w-5 h-5 text-rose-500" /> },
+  medium: { icon: <TrendingUp className="w-5 h-5 text-amber-500" /> },
+  low: { icon: <ShieldCheck className="w-5 h-5 text-sky-500" /> },
+};
+
+const MatrixCell = ({ riskLevel, title, description }: MatrixCellProps) => {
+  const styles = riskStyles[riskLevel];
+  return (
+    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-teal-400 h-full">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex-shrink-0">{styles.icon}</div>
+        <h4 className="font-bold text-lg text-slate-800">{title}</h4>
+      </div>
+      <p className="text-slate-600">{description}</p>
+    </div>
+  );
+};
+
 
 /* ---------------------------------------------------
    PÁGINA PRINCIPAL
@@ -79,7 +114,6 @@ const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps)
 export default function LandingPage() {
   const [data, setData] = useState<SectorData[]>([]);
   const [previousData, setPreviousData] = useState<SectorData[]>([]);
-  // --- NUEVO ESTADO PARA LA FECHA ---
   const [latestAnalysisDate, setLatestAnalysisDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +123,6 @@ export default function LandingPage() {
       setLoading(true);
       setError(null);
       try {
-        // Hacemos ambas llamadas en paralelo para mejorar la velocidad de carga
         const [dashboardResponse, dateResponse] = await Promise.all([
           api.get('/api/v1/dashboard/latest'),
           api.get('/api/v1/latest-analysis-date')
@@ -110,8 +143,8 @@ export default function LandingPage() {
   }, []);
 
   const heroSectors = [...data]
-  .sort(() => Math.random() - 0.5)
-  .slice(0, 4);
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 4);
   
   const formattedDate = formatDate(latestAnalysisDate);
 
@@ -138,7 +171,6 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-col gap-4">
-            {/* 2x2 SECTOR MATRIX */}
             <div className="grid grid-cols-2 gap-4">
               {loading
                 ? [...Array(4)].map((_, i) => (
@@ -155,7 +187,6 @@ export default function LandingPage() {
                   ))
               }
             </div>
-            {/* --- SECCIÓN 1: TEXTO AÑADIDO --- */}
             {!loading && latestAnalysisDate && (
               <div className="text-center md:text-right px-2">
                 <p className="text-sm text-slate-400">
@@ -170,16 +201,50 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      
+      {/* =================================================== */}
+      {/* ===== SECCIÓN DE MATRIZ 3X3 SIMPLIFICADA Y MEJORADA ===== */}
+      {/* =================================================== */}
+      <section className="py-20 md:py-28 bg-slate-100">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-4xl font-bold text-slate-800">
+              Find Your Perfect Sector Strategy
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              One size doesn't fit all. Match your timeline and risk profile to discover the ideal strategy, from short-term trades to long-term wealth building.
+            </p>
+          </div>
+          
+          {/* MATRIZ SIMPLIFICADA */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* High Risk */}
+            <MatrixCell riskLevel="high" title="Weekly High Risk" description="Focus on high-beta sectors showing explosive short-term momentum and volume spikes." />
+            <MatrixCell riskLevel="high" title="Monthly High Risk" description="Identify early-stage secular trends and disruptive technologies poised for multi-month growth." />
+            <MatrixCell riskLevel="high" title="Yearly High Risk" description="Contrarian plays in deeply undervalued sectors with long-term exponential potential." />
+            
+            {/* Medium Risk */}
+            <MatrixCell riskLevel="medium" title="Weekly Medium Risk" description="Our core model. Target established trends and follow institutional capital flows for swing trading." />
+            <MatrixCell riskLevel="medium" title="Monthly Medium Risk" description="A balanced approach aligning with macro shifts to build a resilient core portfolio." />
+            <MatrixCell riskLevel="medium" title="Yearly Medium Risk" description="Pinpoint market leaders in established secular growth trends, ideal for compounding capital." />
+            
+            {/* Low Risk */}
+            <MatrixCell riskLevel="low" title="Weekly Low Risk" description="Minimize volatility by focusing on sectors with stable leadership and proven relative strength." />
+            <MatrixCell riskLevel="low" title="Monthly Low Risk" description="Prioritize durable, low-beta sectors offering stability and potential income generation." />
+            <MatrixCell riskLevel="low" title="Yearly Low Risk" description="The bedrock strategy. Focus on high-quality, blue-chip sectors for steady, multi-year wealth compounding." />
+          </div>
+        </div>
+      </section>
+
  
       {/* LIVE TABLE */}
-      <section id="weekly-analysis" className="py-24 bg-slate-100">
+      <section id="weekly-analysis" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           
-          {/* --- SECCIÓN 2: TÍTULO Y DESCRIPCIÓN AÑADIDOS --- */}
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-slate-800 flex items-center justify-center gap-3">
               <BarChart3 className="w-8 h-8 text-teal-500" />
-              Weekly Sector Rotation Analysis
+              Sample: Weekly Sector Rotation Analysis
             </h2>
             <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">
               This ranking provides a tactical guide for a <strong>2-4 week investment horizon</strong>, comparing current momentum against the previous week.
@@ -192,7 +257,6 @@ export default function LandingPage() {
             )}
           </div>
           
-          {/* Contenedor de la tabla y sus estados */}
           <div className="bg-white rounded-xl shadow-xl p-4 md:p-6 border border-slate-200">
             {loading ? (
               <div className="text-center py-12 text-slate-500">Loading latest data...</div>
@@ -203,11 +267,18 @@ export default function LandingPage() {
             )}
           </div>
 
+          {/* === DISCLAIMER === */}
+          <div className="text-center mt-8 max-w-3xl mx-auto">
+             <p className="text-xs text-slate-500">
+                Disclaimer: The information provided is for educational and informational purposes only and should not be considered investment advice. All investments involve risk, including the potential loss of principal. Past performance is not an indicator of future results. Always conduct your own research or consult with a qualified financial advisor before making any investment decisions.
+             </p>
+          </div>
+
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-24 bg-white text-center">
+      <section className="py-24 bg-slate-100 text-center">
         <h2 className="text-4xl font-bold mb-4">Built for Every Investor</h2>
         <p className="text-xl text-slate-600 mb-8">
           From free previews to premium portfolio tools.
