@@ -9,10 +9,13 @@ import DatePicker from '@/components/DatePickerField';
 import SectorTable from '@/components/sector/SectorTable';
 import { SectorData } from '@/components/sector/types';
 
-const VALID_RISKS = ["low", "medium", "high"];
-const VALID_HORIZONS = ["week", "month", "year"];
+const VALID_RISKS = ["low", "medium", "high"] as const;
+const VALID_HORIZONS = ["week", "month", "year"] as const;
 
-const contentConfig = {
+type Risk = typeof VALID_RISKS[number];
+type Horizon = typeof VALID_HORIZONS[number];
+
+const contentConfig: Record<Horizon, { title: string; description: string }> = {
   week: {
     title: "Weekly Sector Rotation Analysis",
     description: "This ranking provides a tactical guide for a 2-4 week investment horizon, comparing current momentum against the previous week.",
@@ -37,8 +40,8 @@ export default function PortfolioPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const risk = searchParams.get('risk');
-  const horizon = searchParams.get('horizon');
+  const risk = searchParams.get('risk') as Risk | null;
+  const horizon = searchParams.get('horizon') as Horizon | null;
 
   useEffect(() => {
     if (searchParams.toString() && (!risk || !VALID_RISKS.includes(risk) || !horizon || !VALID_HORIZONS.includes(horizon))) {
@@ -79,8 +82,8 @@ export default function PortfolioPage() {
     fetchData();
   }, [selectedDate, dates, risk, horizon]);
 
-  const analysisTitle = horizon ? contentConfig[horizon]?.title || 'Sector Rotation Analysis' : '';
-  const analysisDescription = horizon ? contentConfig[horizon]?.description || '' : '';
+  const analysisTitle = horizon ? contentConfig[horizon].title || 'Sector Rotation Analysis' : '';
+  const analysisDescription = horizon ? contentConfig[horizon].description || '' : '';
   const formattedDate = selectedDate ? selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
   return (
