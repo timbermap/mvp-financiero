@@ -5,10 +5,21 @@ import { SectorData, TrendStatus } from './types';
 import SectorDetails from './SectorDetails';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-interface Props {
-  sector: SectorData;
-  previous?: SectorData;
-}
+// --- CAMBIO CLAVE 1: Mapeo de Estilos para Signal ---
+// Define todos tus posibles valores de 'signal' y los estilos que quieres para cada uno.
+// ¡IMPORTANTE! Reemplaza 'Buy', 'Sell', 'Hold' con tus nuevos términos reales.
+const signalStyles: { [key: string]: string } = {
+  // Ejemplo con nuevos términos:
+  'Overweight': 'bg-emerald-100 text-emerald-700',
+  'Underweight': 'bg-red-100 text-red-700',
+  'Consolidation': 'bg-slate-100 text-slate-700',
+
+  // Si aún usas los viejos, puedes dejarlos también por si acaso:
+  'Bullish': 'bg-emerald-100 text-emerald-700',
+  'Bearish': 'bg-red-100 text-red-700',
+  'Neutral': 'bg-slate-100 text-slate-700',
+};
+
 
 function calculateTrend(
   current?: number,
@@ -31,6 +42,10 @@ export default function SectorRow({ sector, previous }: Props) {
       ? 'text-red-500'
       : 'text-slate-500';
 
+  // --- CAMBIO CLAVE 2: Lógica para obtener las clases de estilo ---
+  // Busca el estilo en nuestro mapa. Si no lo encuentra, usa uno por defecto (neutral).
+  const signalClasses = signalStyles[sector.signal] || 'bg-slate-100 text-slate-700';
+
   return (
     <>
       <tr
@@ -50,15 +65,10 @@ export default function SectorRow({ sector, previous }: Props) {
         </td>
 
         <td className="px-4 py-4 text-center">
+          {/* --- CAMBIO CLAVE 3: Aplicar las clases dinámicas --- */}
+          {/* El `className` ahora es mucho más limpio y fácil de mantener */}
           <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold
-              ${
-                sector.signal === 'Bullish'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : sector.signal === 'Bearish'
-                  ? 'bg-red-100 text-red-700'
-                  : 'bg-slate-100 text-slate-700'
-              }`}
+            className={`px-3 py-1 rounded-full text-xs font-semibold ${signalClasses}`}
           >
             {sector.signal}
           </span>
