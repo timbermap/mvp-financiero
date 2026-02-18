@@ -80,7 +80,7 @@ const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps)
 };
 
 /* ---------------------------------------------------
-   NUEVO COMPONENTE SIMPLIFICADO PARA LA MATRIZ 3X3
+   NUEVO COMPONENTE COMPACTO PARA LA MATRIZ 3X3
 --------------------------------------------------- */
 type MatrixCellProps = {
   riskLevel: 'low' | 'medium' | 'high';
@@ -89,20 +89,20 @@ type MatrixCellProps = {
 };
 
 const riskStyles = {
-  high: { icon: <Zap className="w-5 h-5 text-rose-500" /> },
-  medium: { icon: <TrendingUp className="w-5 h-5 text-amber-500" /> },
-  low: { icon: <ShieldCheck className="w-5 h-5 text-sky-500" /> },
+  high: { icon: <Zap className="w-5 h-5 text-rose-500" />, border: 'hover:border-rose-400' },
+  medium: { icon: <TrendingUp className="w-5 h-5 text-amber-500" />, border: 'hover:border-amber-400' },
+  low: { icon: <ShieldCheck className="w-5 h-5 text-sky-500" />, border: 'hover:border-sky-400' },
 };
 
 const MatrixCell = ({ riskLevel, title, description }: MatrixCellProps) => {
   const styles = riskStyles[riskLevel];
   return (
-    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-teal-400 h-full">
-      <div className="flex items-center gap-3 mb-3">
+    <div className={`bg-white p-4 rounded-lg border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-md ${styles.border} hover:-translate-y-1 h-full`}>
+      <div className="flex items-center gap-2.5 mb-2">
         <div className="flex-shrink-0">{styles.icon}</div>
-        <h4 className="font-bold text-lg text-slate-800">{title}</h4>
+        <h4 className="font-semibold text-base text-slate-800">{title}</h4>
       </div>
-      <p className="text-slate-600">{description}</p>
+      <p className="text-sm text-slate-500">{description}</p>
     </div>
   );
 };
@@ -203,10 +203,10 @@ export default function LandingPage() {
       </section>
       
       {/* =================================================== */}
-      {/* ===== SECCIÓN DE MATRIZ 3X3 SIMPLIFICADA Y MEJORADA ===== */}
+      {/* ===== SECCIÓN DE MATRIZ 3X3 COMPACTA Y REORDENADA ===== */}
       {/* =================================================== */}
       <section className="py-20 md:py-28 bg-slate-100">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-4xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl font-bold text-slate-800">
               Find Your Perfect Sector Strategy
@@ -216,22 +216,22 @@ export default function LandingPage() {
             </p>
           </div>
           
-          {/* MATRIZ SIMPLIFICADA */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* High Risk */}
-            <MatrixCell riskLevel="high" title="Weekly High Risk" description="Focus on high-beta sectors showing explosive short-term momentum and volume spikes." />
-            <MatrixCell riskLevel="high" title="Monthly High Risk" description="Identify early-stage secular trends and disruptive technologies poised for multi-month growth." />
-            <MatrixCell riskLevel="high" title="Yearly High Risk" description="Contrarian plays in deeply undervalued sectors with long-term exponential potential." />
+          {/* MATRIZ COMPACTA Y REORDENADA */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Low Risk (Arriba) */}
+            <MatrixCell riskLevel="low" title="Weekly Low Risk" description="Minimize volatility with sectors showing stable leadership and proven relative strength." />
+            <MatrixCell riskLevel="low" title="Monthly Low Risk" description="Durable, low-beta sectors offering stability and potential income generation." />
+            <MatrixCell riskLevel="low" title="Yearly Low Risk" description="High-quality, blue-chip sectors for steady, multi-year wealth compounding." />
             
-            {/* Medium Risk */}
-            <MatrixCell riskLevel="medium" title="Weekly Medium Risk" description="Our core model. Target established trends and follow institutional capital flows for swing trading." />
+            {/* Medium Risk (Centro) */}
+            <MatrixCell riskLevel="medium" title="Weekly Medium Risk" description="Our core model. Target established trends and follow institutional capital flows." />
             <MatrixCell riskLevel="medium" title="Monthly Medium Risk" description="A balanced approach aligning with macro shifts to build a resilient core portfolio." />
-            <MatrixCell riskLevel="medium" title="Yearly Medium Risk" description="Pinpoint market leaders in established secular growth trends, ideal for compounding capital." />
+            <MatrixCell riskLevel="medium" title="Yearly Medium Risk" description="Pinpoint market leaders in established secular growth trends for compounding capital." />
             
-            {/* Low Risk */}
-            <MatrixCell riskLevel="low" title="Weekly Low Risk" description="Minimize volatility by focusing on sectors with stable leadership and proven relative strength." />
-            <MatrixCell riskLevel="low" title="Monthly Low Risk" description="Prioritize durable, low-beta sectors offering stability and potential income generation." />
-            <MatrixCell riskLevel="low" title="Yearly Low Risk" description="The bedrock strategy. Focus on high-quality, blue-chip sectors for steady, multi-year wealth compounding." />
+            {/* High Risk (Abajo) */}
+            <MatrixCell riskLevel="high" title="Weekly High Risk" description="Focus on high-beta sectors with explosive short-term momentum and volume spikes." />
+            <MatrixCell riskLevel="high" title="Monthly High Risk" description="Identify early-stage secular trends and disruptive technologies for multi-month growth." />
+            <MatrixCell riskLevel="high" title="Yearly High Risk" description="Contrarian plays in undervalued sectors with long-term exponential potential." />
           </div>
         </div>
       </section>
@@ -244,10 +244,11 @@ export default function LandingPage() {
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-slate-800 flex items-center justify-center gap-3">
               <BarChart3 className="w-8 h-8 text-teal-500" />
-              Sample: Weekly Sector Rotation Analysis
+              Sample: Weekly Sector Rotation
             </h2>
+            {/* === TEXTO MEJORADO === */}
             <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">
-              This ranking provides a tactical guide for a <strong>2-4 week investment horizon</strong>, comparing current momentum against the previous week.
+              Below is a sample of our flagship <strong>'Weekly Medium Risk'</strong> analysis. This data-driven ranking helps identify tactical opportunities over a 2-4 week horizon.
             </p>
             {!loading && latestAnalysisDate && (
                  <p className="text-sm text-slate-500 flex items-center justify-center mt-2">

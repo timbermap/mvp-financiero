@@ -11,20 +11,18 @@ import {
   Crown,
   BarChartHorizontalBig,
   PieChart,
-  Loader2 // <-- Icono para el estado de carga
+  Loader2
 } from 'lucide-react';
 
-// --- ¡IMPORTAMOS EL HOOK REAL DE TU APLICACIÓN! ---
 import { useAuth } from '@/context/AuthContext'; 
 import api from '@/services/api';
 
 /* ---------------------------------------------------
-   COMPONENTE DE TARJETA DEL DASHBOARD (DashboardCard)
-   (Este componente no necesita cambios, ya está listo para ser controlado por props)
+   COMPONENTE DE TARJETA DE ESTRATEGIA (Compacto)
+   Este es el nuevo componente para cada horizonte de tiempo.
 --------------------------------------------------- */
-type DashboardCardProps = {
-  icon: ReactNode;
-  title: string;
+type StrategyCardProps = {
+  horizon: string;
   description: string;
   isLocked: boolean;
   links: {
@@ -34,36 +32,35 @@ type DashboardCardProps = {
   }[];
 };
 
-const DashboardCard = ({ icon, title, description, isLocked, links }: DashboardCardProps) => {
-  const baseClasses = "relative group flex flex-col justify-between rounded-xl p-6 bg-slate-900 border border-slate-700 transition-all duration-300 h-full";
-  const unlockedClasses = "hover:border-teal-500 hover:-translate-y-1";
+const StrategyCard = ({ horizon, description, isLocked, links }: StrategyCardProps) => {
+  const baseClasses = "relative flex flex-col justify-between rounded-lg p-4 bg-slate-900 border border-slate-800 transition-colors duration-200 h-full";
+  const unlockedClasses = "hover:border-slate-700";
   const lockedClasses = "opacity-60 filter grayscale-[50%]";
 
   return (
     <div className={`${baseClasses} ${isLocked ? lockedClasses : unlockedClasses}`}>
       {isLocked && (
-        <div className="absolute top-4 right-4 flex items-center gap-2 bg-amber-500/10 text-amber-400 text-xs font-bold px-3 py-1 rounded-full">
-          <Crown className="w-4 h-4" />
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-amber-500/10 text-amber-400 text-xs font-bold px-2 py-1 rounded-full">
+          <Crown className="w-3.5 h-3.5" />
           PRO
         </div>
       )}
 
       <div>
-        <div className="mb-4 text-teal-400">{icon}</div>
-        <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-slate-400 text-sm">{description}</p>
+        <h3 className="text-md font-bold text-white mb-1.5">{horizon}</h3>
+        <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
       </div>
 
-      <div className="mt-6 space-y-3">
+      <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col space-y-2">
         {links.map((link, index) => {
-          const linkHref = isLocked ? '/upgrade' : link.href; // Redirige a upgrade si está bloqueado
+          const linkHref = isLocked ? '/upgrade' : link.href;
           return (
-            <Link href={linkHref} key={index} className={`flex items-center justify-between w-full text-sm font-semibold p-3 rounded-lg transition-colors ${isLocked ? 'bg-slate-800 cursor-not-allowed' : 'bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
+            <Link href={linkHref} key={index} className={`flex items-center justify-between w-full text-sm font-medium p-2 rounded-md transition-colors ${isLocked ? 'cursor-not-allowed text-slate-500' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
               <span className="flex items-center gap-2">
                 {link.icon}
                 {link.name}
               </span>
-              {isLocked ? <Lock className="w-4 h-4 text-amber-400" /> : <ArrowRight className="w-4 h-4 text-slate-500" />}
+              {isLocked ? <Lock className="w-4 h-4 text-amber-400" /> : <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-white" />}
             </Link>
           );
         })}
@@ -72,35 +69,28 @@ const DashboardCard = ({ icon, title, description, isLocked, links }: DashboardC
   );
 };
 
+
 /* ---------------------------------------------------
-   PÁGINA PRINCIPAL DEL DASHBOARD (CON AUTENTICACIÓN REAL)
+   PÁGINA PRINCIPAL DEL DASHBOARD (Con nuevo formato)
 --------------------------------------------------- */
 export default function DashboardPage() {
-  // --- Usamos el hook para obtener el estado real de autenticación ---
   const { user, loading } = useAuth();
-
-  // --- Estado para el tier del usuario, fetched from API ---
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [tierLoading, setTierLoading] = useState(true);
 
-  // --- Fetch user tier from API after auth is loaded ---
   useEffect(() => {
     if (!loading && user) {
       api.get('/api/v1/users/me')
         .then((res) => {
           setSubscriptionTier(res.data.subscription_tier);
-          setTierLoading(false);
         })
-        .catch((error) => {
-          console.error('Error fetching user profile:', error);
-          setTierLoading(false);
-        });
+        .catch((error) => console.error('Error fetching user profile:', error))
+        .finally(() => setTierLoading(false));
     } else if (!loading && !user) {
       setTierLoading(false);
     }
   }, [loading, user]);
 
-  // --- Estado de Carga Profesional (Auth + Tier) ---
   if (loading || tierLoading) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
@@ -110,8 +100,6 @@ export default function DashboardPage() {
     );
   }
 
-  // --- Si no hay usuario, puedes redirigir o mostrar un mensaje ---
-  // (Opcional, pero recomendado si esta es una ruta protegida)
   if (!user) {
      return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
@@ -121,19 +109,38 @@ export default function DashboardPage() {
      )
   }
 
-  const dashboardMatrixData = [
-    // --- Fila: Bajo Riesgo (arriba) ---
-    { risk: 'Low', horizon: '1 Week', icon: <Shield className="w-8 h-8" />, title: "Low Risk / 1 Week", description: "Capital preservation strategies for short-term market stability." },
-    { risk: 'Low', horizon: '2-4 Weeks', icon: <Shield className="w-8 h-8" />, title: "Low Risk / 2-4 Weeks", description: "Defensive sector plays with a focus on minimizing volatility." },
-    { risk: 'Low', horizon: '1 Year', icon: <Shield className="w-8 h-8" />, title: "Low Risk / 1 Year", description: "Long-term holdings in historically stable and dividend-paying sectors." },
-    // --- Fila: Medio Riesgo ---
-    { risk: 'Medium', horizon: '1 Week', icon: <ShieldCheck className="w-8 h-8" />, title: "Medium Risk / 1 Week", description: "Tactical trades based on immediate bullish signals and trends." },
-    { risk: 'Medium', horizon: '2-4 Weeks', icon: <ShieldCheck className="w-8 h-8" />, title: "Medium Risk / 2-4 Weeks", description: "Core strategy focusing on sectors with confirmed upward momentum." },
-    { risk: 'Medium', horizon: '1 Year', icon: <ShieldCheck className="w-8 h-8" />, title: "Medium Risk / 1 Year", description: "Investing in sectors poised for cyclical growth over the next year." },
-    // --- Fila: Alto Riesgo (abajo) ---
-    { risk: 'High', horizon: '1 Week', icon: <ShieldAlert className="w-8 h-8" />, title: "High Risk / 1 Week", description: "Aggressive, speculative plays on highly volatile sectors." },
-    { risk: 'High', horizon: '2-4 Weeks', icon: <ShieldAlert className="w-8 h-8" />, title: "High Risk / 2-4 Weeks", description: "Targeting breakout sectors with high growth potential and risk." },
-    { risk: 'High', horizon: '1 Year', icon: <ShieldAlert className="w-8 h-8" />, title: "High Risk / 1 Year", description: "Thematic investments in disruptive and emerging industries." },
+  // --- NUEVA ESTRUCTURA DE DATOS AGRUPADA ---
+  const groupedStrategies = [
+    {
+      riskLevel: 'Low',
+      riskTitle: 'Low Risk Strategies',
+      icon: <Shield className="w-7 h-7 text-teal-400" />,
+      strategies: [
+        { horizon: '1 Week', scenario: 'week', description: "Capital preservation for short-term market stability." },
+        { horizon: '2-4 Weeks', scenario: 'month', description: "Defensive sector plays to minimize volatility." },
+        { horizon: '1 Year', scenario: 'year', description: "Long-term holdings in historically stable sectors." },
+      ]
+    },
+    {
+      riskLevel: 'Medium',
+      riskTitle: 'Medium Risk Strategies',
+      icon: <ShieldCheck className="w-7 h-7 text-teal-400" />,
+      strategies: [
+        { horizon: '1 Week', scenario: 'week', description: "Tactical trades based on immediate bullish signals." },
+        { horizon: '2-4 Weeks', scenario: 'month', description: "Core strategy focusing on confirmed upward momentum." },
+        { horizon: '1 Year', scenario: 'year', description: "Investing in sectors poised for cyclical growth." },
+      ]
+    },
+    {
+      riskLevel: 'High',
+      riskTitle: 'High Risk Strategies',
+      icon: <ShieldAlert className="w-7 h-7 text-teal-400" />,
+      strategies: [
+        { horizon: '1 Week', scenario: 'week', description: "Aggressive, speculative plays on volatile sectors." },
+        { horizon: '2-4 Weeks', scenario: 'month', description: "Targeting breakout sectors with high growth potential." },
+        { horizon: '1 Year', scenario: 'year', description: "Thematic investments in disruptive industries." },
+      ]
+    }
   ];
 
   return (
@@ -141,38 +148,42 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto">
         <header className="mb-10">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Investment Strategy Dashboard</h1>
-          <p className="mt-2 text-lg text-slate-400">Select a risk and time horizon to view your tailored strategy.</p>
+          <p className="mt-2 text-lg text-slate-400">Select a strategy based on your preferred risk and time horizon.</p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {dashboardMatrixData.map((card, index) => {
-            
-            // --- LÓGICA DE ACCESO CON DATOS REALES DEL BACKEND ---
-            const isFreeAccess = card.risk === 'Medium' && card.horizon === '2-4 Weeks';
-            const isLocked = subscriptionTier === 'FREE' && !isFreeAccess;
-
-            // Map horizons to new scenarios
-            let scenario;
-            if (card.horizon === '1 Week') {
-              scenario = 'week';
-            } else if (card.horizon === '2-4 Weeks') {
-              scenario = 'month';
-            } else if (card.horizon === '1 Year') {
-              scenario = 'year';
-            }
+        <div className="space-y-12">
+          {groupedStrategies.map((group) => {
+            const riskValue = group.riskLevel.toLowerCase();
 
             return (
-              <DashboardCard
-                key={index}
-                icon={card.icon}
-                title={card.title}
-                description={card.description}
-                isLocked={isLocked}
-                links={[
-                  { name: 'Sector Rotation', href: `/product/rotations?risk=${card.risk.toLowerCase()}&horizon=${scenario}`, icon: <BarChartHorizontalBig className="w-4 h-4"/> },
-                  { name: 'Portfolio', href: `/dashboard/portfolio?risk=${card.risk.toLowerCase()}&horizon=${scenario}`, icon: <PieChart className="w-4 h-4" /> },
-                ]}
-              />
+              <section key={group.riskLevel}>
+                {/* --- Cabecera de cada grupo de riesgo --- */}
+                <div className="flex items-center gap-4 mb-5">
+                  {group.icon}
+                  <h2 className="text-2xl font-bold text-white">{group.riskTitle}</h2>
+                </div>
+
+                {/* --- Cuadrícula de tarjetas compactas --- */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {group.strategies.map((strategy) => {
+                    const isFreeAccess = group.riskLevel === 'Medium' && strategy.horizon === '2-4 Weeks';
+                    const isLocked = subscriptionTier === 'FREE' && !isFreeAccess;
+
+                    return (
+                      <StrategyCard
+                        key={strategy.horizon}
+                        horizon={`${strategy.horizon} Horizon`}
+                        description={strategy.description}
+                        isLocked={isLocked}
+                        links={[
+                          { name: 'Sector Rotation', href: `/product/rotations?risk=${riskValue}&horizon=${strategy.scenario}`, icon: <BarChartHorizontalBig className="w-4 h-4"/> },
+                          { name: 'Portfolio', href: `/dashboard/portfolio?risk=${riskValue}&horizon=${strategy.scenario}`, icon: <PieChart className="w-4 h-4" /> },
+                        ]}
+                      />
+                    );
+                  })}
+                </div>
+              </section>
             );
           })}
         </div>
