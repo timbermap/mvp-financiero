@@ -8,28 +8,35 @@ import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import api from '@/services/api';
 
-// --- NUEVO: Íconos de Lucide React para un look moderno ---
-import { ChevronDown, UserCircle, Settings, LogOut, Menu, X, LayoutDashboard } from 'lucide-react';
+// --- Modern Lucide icons ---
+import { 
+  ChevronDown, 
+  UserCircle, 
+  Settings, 
+  LogOut, 
+  Menu, 
+  X, 
+  BarChart3 
+} from 'lucide-react';
 
-// --- NUEVO: Componente Link Activo para resaltar la página actual ---
+// --- Active NavLink with emerald accent ---
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href || pathname.startsWith(href + '?');
 
   return (
     <Link
       href={href}
-      className={`flex items-center h-full px-3 text-sm font-semibold transition-colors
+      className={`flex items-center h-full px-4 text-sm font-semibold transition-all border-b-2
         ${isActive
-          ? 'text-blue-600 border-b-2 border-blue-600'
-          : 'text-slate-600 hover:text-blue-600'
+          ? 'text-emerald-600 border-emerald-600'
+          : 'text-slate-600 border-transparent hover:text-slate-900 hover:border-slate-300'
         }`}
     >
       {children}
     </Link>
   );
 }
-
 
 export default function Navbar() {
   const { user, loading } = useAuth();
@@ -43,12 +50,12 @@ export default function Navbar() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Cierra el menú móvil cuando cambia la ruta
+  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  // Fetch del perfil de usuario (sin cambios)
+  // Fetch user profile
   useEffect(() => {
     if (user && !loading) {
       api.get('/api/v1/users/me')
@@ -57,7 +64,6 @@ export default function Navbar() {
     }
   }, [user, loading]);
 
-  // Logout (sin cambios)
   const handleLogout = async () => {
     await signOut(auth);
     setIsUserMenuOpen(false);
@@ -66,7 +72,7 @@ export default function Navbar() {
     router.push('/');
   };
 
-  // Click afuera para cerrar menús (mejorado)
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -81,31 +87,50 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-slate-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
-          {/* === LADO IZQUIERDO: Logo y Navegación Principal === */}
-          <div className="flex items-center gap-8 h-full">
-            <Link href="/" className="text-2xl font-bold text-slate-900 tracking-tight">
-              LogoFin
+          {/* === LEFT SIDE: Logo + Navigation === */}
+          <div className="flex items-center gap-10 h-full">
+            {/* Professional Logo with emerald accent */}
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-2xl font-bold tracking-tighter text-slate-900 group-hover:text-emerald-600 transition-colors">
+                Horizon
+              </span>
             </Link>
 
-            {/* Navegación para usuarios logueados (Free y Pro) */}
+            {/* Desktop Navigation - only for logged-in users */}
             {user && (
-              <div className="hidden md:flex items-center h-full gap-6">
+              <div className="hidden md:flex items-center h-full gap-2">
                 <NavLink href="/dashboard">Dashboard</NavLink>
-                
-                {/* --- Menú de Productos Rediseñado --- */}
+
+                {/* Products Dropdown - clean & professional */}
                 <div className="relative group h-full flex items-center">
-                  <button className="flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-blue-600 group-hover:text-blue-600">
-                    <span>Products</span>
+                  <button className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+                    Products
                     <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
                   </button>
-                  <div className="absolute top-full left-0 w-56 pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 invisible group-hover:visible">
-                    <div className="bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1">
-                      <Link href="/product/rotations?risk=medium&horizon=month" className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Rotación de Sectores</Link>
-                      <Link href="/product/portfolio" className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Portfolio Modelo</Link>
+
+                  <div className="absolute top-full left-0 w-64 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div className="bg-white rounded-2xl shadow-xl ring-1 ring-black/5 py-2 border border-slate-100">
+                      <Link 
+                        href="/product/rotations?risk=medium&horizon=month" 
+                        className="flex items-center gap-3 px-5 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl mx-1 transition-colors"
+                      >
+                        <BarChart3 className="w-4 h-4" />
+                        Sector Rotation
+                      </Link>
+                      <Link 
+                        href="/product/portfolio?risk=medium&horizon=month" 
+                        className="flex items-center gap-3 px-5 py-3 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl mx-1 transition-colors"
+                      >
+                        <BarChart3 className="w-4 h-4" />
+                        Model Portfolio
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -113,35 +138,54 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* === LADO DERECHO: Acciones y Menú de Usuario === */}
-          <div className="flex items-center">
+          {/* === RIGHT SIDE: User actions === */}
+          <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-4">
               {loading ? (
-                <div className="h-8 w-24 bg-slate-200 rounded-md animate-pulse" />
+                <div className="h-9 w-28 bg-slate-100 rounded-2xl animate-pulse" />
               ) : user ? (
-                // --- Menú de Usuario Rediseñado ---
                 <div className="relative" ref={userMenuRef}>
-                  <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center justify-center h-9 w-9 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors">
+                  <button 
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-2.5 pl-3 pr-4 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl transition-all"
+                  >
                     <UserCircle className="w-6 h-6 text-slate-600" />
+                    <div className="text-left">
+                      <p className="text-xs font-medium text-slate-500">Account</p>
+                      <p className="text-sm font-semibold text-slate-900 -mt-0.5 truncate max-w-[140px]">
+                        {userProfile?.email || user.email}
+                      </p>
+                    </div>
                   </button>
 
                   {isUserMenuOpen && (
-                    <div className="absolute top-full right-0 w-64 pt-2">
-                      <div className="bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
-                        <div className="px-4 py-3 border-b border-slate-200">
-                          <p className="text-sm font-semibold text-slate-800 truncate">{userProfile?.email || user.email}</p>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block ${userProfile?.subscription_tier === 'Pro' ? 'bg-violet-100 text-violet-700' : 'bg-blue-100 text-blue-700'}`}>
+                    <div className="absolute top-full right-0 mt-3 w-72">
+                      <div className="bg-white rounded-2xl shadow-xl ring-1 ring-black/5 border border-slate-100 overflow-hidden">
+                        <div className="px-6 py-5 border-b border-slate-100 bg-slate-50">
+                          <p className="font-semibold text-slate-900">{userProfile?.email || user.email}</p>
+                          <span className={`inline-block mt-2 text-xs font-bold px-3 py-1 rounded-full 
+                            ${userProfile?.subscription_tier === 'Pro' 
+                              ? 'bg-emerald-100 text-emerald-700' 
+                              : 'bg-slate-200 text-slate-600'}`}>
                             {userProfile?.subscription_tier || 'Free'}
                           </span>
                         </div>
-                        <div className="py-1">
-                          <Link href="/settings" onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
-                            <Settings className="w-4 h-4 text-slate-500" />
-                            <span>Settings</span>
+
+                        <div className="p-2">
+                          <Link 
+                            href="/settings" 
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-5 py-3 text-sm text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+                          >
+                            <Settings className="w-4 h-4" />
+                            Settings
                           </Link>
-                          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700">
+                          <button 
+                            onClick={handleLogout} 
+                            className="w-full flex items-center gap-3 px-5 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                          >
                             <LogOut className="w-4 h-4" />
-                            <span>Logout</span>
+                            Logout
                           </button>
                         </div>
                       </div>
@@ -149,40 +193,55 @@ export default function Navbar() {
                   )}
                 </div>
               ) : (
-                // --- Botones para usuarios "Open" ---
                 <>
-                  <Link href="/login" className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-blue-600">Login</Link>
-                  <Link href="/signup" className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">Sign Up</Link>
+                  <Link 
+                    href="/login" 
+                    className="px-5 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link 
+                    href="/signup" 
+                    className="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 transition-all active:scale-95"
+                  >
+                    Get started free
+                  </Link>
                 </>
               )}
             </div>
 
-            {/* --- Botón de Menú Móvil --- */}
-            <div className="md:hidden ml-4">
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-slate-600">
-                {isMobileMenuOpen ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}
-              </button>
-            </div>
+            {/* Mobile menu button */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+              className="md:hidden p-2 text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* --- Panel de Menú Móvil --- */}
+      {/* === Mobile Menu === */}
       {isMobileMenuOpen && (
-        <div ref={mobileMenuRef} className="md:hidden bg-white border-t border-slate-200">
-          <div className="px-4 pt-2 pb-4 space-y-2">
+        <div ref={mobileMenuRef} className="md:hidden bg-white border-t border-slate-200 py-4">
+          <div className="px-6 space-y-1">
             {user ? (
               <>
-                <Link href="/dashboard" className="block px-2 py-2 font-semibold text-slate-700 rounded-md hover:bg-slate-100">Dashboard</Link>
-                <Link href="/product/rotations?risk=medium&horizon=month" className="block px-2 py-2 font-semibold text-slate-700 rounded-md hover:bg-slate-100">Rotación de Sectores</Link>
-                <Link href="/product/portfolio" className="block px-2 py-2 font-semibold text-slate-700 rounded-md hover:bg-slate-100">Portfolio Modelo</Link>
-                <Link href="/settings" className="block px-2 py-2 font-semibold text-slate-700 rounded-md hover:bg-slate-100">Settings</Link>
-                <button onClick={handleLogout} className="w-full text-left px-2 py-2 font-semibold text-red-600 rounded-md hover:bg-red-50">Logout</button>
+                <Link href="/dashboard" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Dashboard</Link>
+                <Link href="/product/rotations?risk=medium&horizon=month" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Sector Rotation</Link>
+                <Link href="/product/portfolio?risk=medium&horizon=month" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Model Portfolio</Link>
+                <Link href="/settings" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Settings</Link>
+                <button 
+                  onClick={handleLogout} 
+                  className="w-full text-left px-4 py-3 font-semibold text-red-600 hover:bg-red-50 rounded-2xl"
+                >
+                  Logout
+                </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="block px-2 py-2 font-semibold text-slate-700 rounded-md hover:bg-slate-100">Login</Link>
-                <Link href="/signup" className="block w-full text-center px-2 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Sign Up</Link>
+                <Link href="/login" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Log in</Link>
+                <Link href="/signup" className="block w-full text-center px-4 py-3 font-semibold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700">Get started free</Link>
               </>
             )}
           </div>

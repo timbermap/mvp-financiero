@@ -6,7 +6,6 @@ import {
   Shield, 
   ShieldCheck, 
   ShieldAlert, 
-  ArrowRight, 
   Lock, 
   Crown,
   BarChartHorizontalBig,
@@ -18,8 +17,7 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/services/api';
 
 /* ---------------------------------------------------
-   COMPONENTE DE TARJETA DE ESTRATEGIA (Compacto)
-   Este es el nuevo componente para cada horizonte de tiempo.
+   STRATEGY CARD COMPONENT (Clean, Modern, English)
 --------------------------------------------------- */
 type StrategyCardProps = {
   horizon: string;
@@ -33,45 +31,60 @@ type StrategyCardProps = {
 };
 
 const StrategyCard = ({ horizon, description, isLocked, links }: StrategyCardProps) => {
-  const baseClasses = "relative flex flex-col justify-between rounded-lg p-4 bg-slate-900 border border-slate-800 transition-colors duration-200 h-full";
-  const unlockedClasses = "hover:border-slate-700";
-  const lockedClasses = "opacity-60 filter grayscale-[50%]";
+  const baseClasses = "relative flex flex-col justify-between rounded-2xl p-6 bg-white border border-slate-200 shadow-sm transition-all duration-300 h-full overflow-hidden";
+  const unlockedClasses = "hover:shadow-xl hover:border-emerald-500"; // No movement
+  const lockedClasses = "bg-slate-50/70 filter saturate-[0.85]";
 
   return (
     <div className={`${baseClasses} ${isLocked ? lockedClasses : unlockedClasses}`}>
+      {/* PRO Badge */}
       {isLocked && (
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-amber-500/10 text-amber-400 text-xs font-bold px-2 py-1 rounded-full">
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">
           <Crown className="w-3.5 h-3.5" />
           PRO
         </div>
       )}
 
-      <div>
-        <h3 className="text-md font-bold text-white mb-1.5">{horizon}</h3>
-        <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
+      {/* Card Content */}
+      <div className="flex-grow">
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">
+          Investment Horizon: {horizon}
+        </h3>
+        <p className="text-sm text-slate-600 leading-relaxed">{description}</p>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col space-y-2">
+      {/* Footer with links only (no arrow) */}
+      <div className="mt-6 pt-5 border-t border-slate-200 flex items-center gap-3">
         {links.map((link, index) => {
           const linkHref = isLocked ? '/upgrade' : link.href;
           return (
-            <Link href={linkHref} key={index} className={`flex items-center justify-between w-full text-sm font-medium p-2 rounded-md transition-colors ${isLocked ? 'cursor-not-allowed text-slate-500' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
-              <span className="flex items-center gap-2">
-                {link.icon}
-                {link.name}
-              </span>
-              {isLocked ? <Lock className="w-4 h-4 text-amber-400" /> : <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-white" />}
+            <Link 
+              href={linkHref} 
+              key={index} 
+              className={`group flex-1 flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl border transition-all ${
+                isLocked 
+                  ? 'border-slate-200 text-slate-400 cursor-not-allowed' 
+                  : 'border-slate-300 hover:border-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
+              }`}
+            >
+              {link.icon}
+              <span>{link.name}</span>
             </Link>
           );
         })}
+        
+        {isLocked && (
+          <div className="ml-2">
+            <Lock className="w-5 h-5 text-amber-500" />
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-
 /* ---------------------------------------------------
-   PÁGINA PRINCIPAL DEL DASHBOARD (Con nuevo formato)
+   DASHBOARD PAGE (Fully English + New Green)
 --------------------------------------------------- */
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -81,9 +94,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!loading && user) {
       api.get('/api/v1/users/me')
-        .then((res) => {
-          setSubscriptionTier(res.data.subscription_tier);
-        })
+        .then((res) => setSubscriptionTier(res.data.subscription_tier))
         .catch((error) => console.error('Error fetching user profile:', error))
         .finally(() => setTierLoading(false));
     } else if (!loading && !user) {
@@ -93,91 +104,100 @@ export default function DashboardPage() {
 
   if (loading || tierLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
-        <Loader2 className="w-12 h-12 animate-spin text-teal-500" />
-        <p className="mt-4 text-lg text-slate-400">Loading dashboard...</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-800">
+        <Loader2 className="w-12 h-12 animate-spin text-emerald-600" />
+        <p className="mt-4 text-lg text-slate-500">Loading your dashboard...</p>
       </div>
     );
   }
 
   if (!user) {
-     return (
-        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
-            <h2 className="text-2xl font-bold">Access Denied</h2>
-            <p className="mt-2 text-slate-400">Please <Link href="/login" className="text-teal-400 hover:underline">log in</Link> to view your dashboard.</p>
-        </div>
-     )
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-800">
+        <h2 className="text-3xl font-bold">Access Denied</h2>
+        <p className="mt-3 text-slate-600">
+          Please <Link href="/login" className="font-medium text-emerald-600 hover:underline">log in</Link> to view your dashboard.
+        </p>
+      </div>
+    );
   }
 
-  // --- NUEVA ESTRUCTURA DE DATOS AGRUPADA ---
+  const primaryIconColor = "text-emerald-600";   // ← Your new green color!
+
   const groupedStrategies = [
     {
       riskLevel: 'Low',
       riskTitle: 'Low Risk Strategies',
-      icon: <Shield className="w-7 h-7 text-teal-400" />,
+      icon: <Shield className={`w-9 h-9 ${primaryIconColor}`} />,
       strategies: [
-        { horizon: '1 Week', scenario: 'week', description: "Capital preservation for short-term market stability." },
-        { horizon: '2-4 Weeks', scenario: 'month', description: "Defensive sector plays to minimize volatility." },
-        { horizon: '1 Year', scenario: 'year', description: "Long-term holdings in historically stable sectors." },
+        { horizon: 'Week', scenario: 'week', description: "Capital preservation for short-term stability." },
+        { horizon: 'Month', scenario: 'month', description: "Defensive sectors to minimize volatility." },
+        { horizon: 'Year', scenario: 'year', description: "Long-term positions in historically stable sectors." },
       ]
     },
     {
       riskLevel: 'Medium',
       riskTitle: 'Medium Risk Strategies',
-      icon: <ShieldCheck className="w-7 h-7 text-teal-400" />,
+      icon: <ShieldCheck className={`w-9 h-9 ${primaryIconColor}`} />,
       strategies: [
-        { horizon: '1 Week', scenario: 'week', description: "Tactical trades based on immediate bullish signals." },
-        { horizon: '2-4 Weeks', scenario: 'month', description: "Core strategy focusing on confirmed upward momentum." },
-        { horizon: '1 Year', scenario: 'year', description: "Investing in sectors poised for cyclical growth." },
+        { horizon: 'Week', scenario: 'week', description: "Tactical trades based on immediate bullish signals." },
+        { horizon: 'Month', scenario: 'month', description: "Core strategy focused on upward momentum." },
+        { horizon: 'Year', scenario: 'year', description: "Investment in sectors poised for cyclical growth." },
       ]
     },
     {
       riskLevel: 'High',
       riskTitle: 'High Risk Strategies',
-      icon: <ShieldAlert className="w-7 h-7 text-teal-400" />,
+      icon: <ShieldAlert className={`w-9 h-9 ${primaryIconColor}`} />,
       strategies: [
-        { horizon: '1 Week', scenario: 'week', description: "Aggressive, speculative plays on volatile sectors." },
-        { horizon: '2-4 Weeks', scenario: 'month', description: "Targeting breakout sectors with high growth potential." },
-        { horizon: '1 Year', scenario: 'year', description: "Thematic investments in disruptive industries." },
+        { horizon: 'Week', scenario: 'week', description: "Speculative and aggressive trades in volatile sectors." },
+        { horizon: 'Month', scenario: 'month', description: "Targeting emerging sectors with high potential." },
+        { horizon: 'Year', scenario: 'year', description: "Thematic investments in disruptive industries." },
       ]
     }
   ];
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-6 md:p-10">
+    <main className="min-h-screen bg-slate-50 text-slate-900 p-6 md:p-10">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Investment Strategy Dashboard</h1>
-          <p className="mt-2 text-lg text-slate-400">Select a strategy based on your preferred risk and time horizon.</p>
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900">Investment Strategies Dashboard</h1>
+          <p className="mt-3 text-lg text-slate-600">Choose a strategy based on your risk tolerance and preferred investment horizon.</p>
         </header>
 
-        <div className="space-y-12">
+        <div className="space-y-16">
           {groupedStrategies.map((group) => {
             const riskValue = group.riskLevel.toLowerCase();
 
             return (
               <section key={group.riskLevel}>
-                {/* --- Cabecera de cada grupo de riesgo --- */}
-                <div className="flex items-center gap-4 mb-5">
+                <div className="flex items-center gap-4 mb-8">
                   {group.icon}
-                  <h2 className="text-2xl font-bold text-white">{group.riskTitle}</h2>
+                  <h2 className="text-2xl font-bold text-slate-800">{group.riskTitle}</h2>
                 </div>
 
-                {/* --- Cuadrícula de tarjetas compactas --- */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {group.strategies.map((strategy) => {
-                    const isFreeAccess = group.riskLevel === 'Medium' && strategy.horizon === '2-4 Weeks';
+                    const isFreeAccess = group.riskLevel === 'Medium' && strategy.horizon === 'Month';
                     const isLocked = subscriptionTier === 'FREE' && !isFreeAccess;
 
                     return (
                       <StrategyCard
                         key={strategy.horizon}
-                        horizon={`${strategy.horizon} Horizon`}
+                        horizon={strategy.horizon}
                         description={strategy.description}
                         isLocked={isLocked}
                         links={[
-                          { name: 'Sector Rotation', href: `/product/rotations?risk=${riskValue}&horizon=${strategy.scenario}`, icon: <BarChartHorizontalBig className="w-4 h-4"/> },
-                          { name: 'Portfolio', href: `/dashboard/portfolio?risk=${riskValue}&horizon=${strategy.scenario}`, icon: <PieChart className="w-4 h-4" /> },
+                          { 
+                            name: 'Sector Rotation', 
+                            href: `/product/rotations?risk=${riskValue}&horizon=${strategy.scenario}`, 
+                            icon: <BarChartHorizontalBig className="w-4 h-4" /> 
+                          },
+                          { 
+                            name: 'Portfolio', 
+                            href: `/product/portfolio?risk=${riskValue}&horizon=${strategy.scenario}`, 
+                            icon: <PieChart className="w-4 h-4" /> 
+                          },
                         ]}
                       />
                     );

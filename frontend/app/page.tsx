@@ -1,16 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import api from '@/services/api';
 import SectorTable from '@/components/sector/SectorTable';
+import Link from 'next/link';
 import { 
   ChevronRight, 
   Users, 
   Calendar, 
   BarChart3,
-  Zap, // High Risk
-  TrendingUp, // Medium Risk
-  ShieldCheck, // Low Risk
+  Zap, 
+  TrendingUp, 
+  ShieldCheck,
 } from 'lucide-react';
 
 // --- TIPOS DE DATOS ---
@@ -22,7 +23,7 @@ export interface SectorData {
   signal: string;
 }
 
-// --- FUNCIÓN HELPER PARA FORMATEAR FECHA ---
+// --- FORMAT DATE ---
 const formatDate = (isoDate: string | null): string => {
   if (!isoDate) return 'N/A';
   const date = new Date(isoDate + 'T00:00:00Z');
@@ -34,9 +35,8 @@ const formatDate = (isoDate: string | null): string => {
   });
 };
 
-
 /* ---------------------------------------------------
-   HERO – MINI SECTOR CARD (2x2 MATRIX)
+   HERO SECTOR CARD
 --------------------------------------------------- */
 const getRegime = (signal: string) => {
   if (signal === 'Neutral') return 'Leading';
@@ -46,10 +46,10 @@ const getRegime = (signal: string) => {
 };
 
 const regimeStyles = {
-  Leading: { border: 'border-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-400' },
-  Improving: { border: 'border-sky-500', bg: 'bg-sky-500/10', text: 'text-sky-400' },
-  Weakening: { border: 'border-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-400' },
-  Lagging: { border: 'border-rose-500', bg: 'bg-rose-500/10', text: 'text-rose-400' }
+  Leading:    { border: 'border-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-400' },
+  Improving:  { border: 'border-emerald-400', bg: 'bg-emerald-400/10', text: 'text-emerald-300' },
+  Weakening:  { border: 'border-amber-500',  bg: 'bg-amber-500/10',  text: 'text-amber-400' },
+  Lagging:    { border: 'border-rose-500',   bg: 'bg-rose-500/10',   text: 'text-rose-400' }
 };
 
 type HeroSectorCardProps = {
@@ -64,52 +64,101 @@ const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps)
   const styles = regimeStyles[regime as keyof typeof regimeStyles];
 
   return (
-    <div className={`relative group rounded-xl p-5 border ${styles.border} ${styles.bg} bg-slate-900/70 transition-all`}>
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="font-semibold text-white">{sector}</h4>
-        <span className="text-xs text-slate-400">#{rank}</span>
+    <div className={`relative group rounded-2xl p-6 border ${styles.border} ${styles.bg} bg-slate-900/80 backdrop-blur-sm transition-all hover:scale-[1.02]`}>
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-semibold text-white text-lg">{sector}</h4>
+        <span className="text-xs font-mono text-slate-400">#{rank}</span>
       </div>
       <p className={`text-sm font-medium ${styles.text}`}>{regime}</p>
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-44 rounded-lg bg-slate-800 text-xs text-slate-200 px-3 py-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none shadow-xl border border-slate-700">
-        <div className="font-semibold mb-1">{sector}</div>
-        <div>Signal: <span className="text-white">{signal}</span></div>
-        <div>Score: <span className="text-white">{momentum.toFixed(2)}</span></div>
+      
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-52 rounded-2xl bg-slate-800 text-xs text-slate-200 px-4 py-3 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none shadow-2xl border border-slate-700">
+        <div className="font-semibold mb-1.5 border-b border-slate-700 pb-2">{sector}</div>
+        <div className="flex justify-between"><span className="text-slate-400">Signal</span><span className="text-white">{signal}</span></div>
+        <div className="flex justify-between"><span className="text-slate-400">Score</span><span className="text-white">{momentum.toFixed(2)}</span></div>
       </div>
     </div>
   );
 };
 
 /* ---------------------------------------------------
-   NUEVO COMPONENTE COMPACTO PARA LA MATRIZ 3X3
+   3x3 STRATEGY MATRIX (CORREGIDO)
 --------------------------------------------------- */
-type MatrixCellProps = {
-  riskLevel: 'low' | 'medium' | 'high';
-  title: string;
-  description: string;
+const strategies = {
+  low: {
+    week:  "Capital preservation for short-term stability.",
+    month: "Defensive sectors to minimize volatility.",
+    year:  "Long-term positions in historically stable sectors.",
+  },
+  medium: {
+    week:  "Tactical trades based on immediate bullish signals.",
+    month: "Core strategy focused on upward momentum.",
+    year:  "Investment in sectors poised for cyclical growth.",
+  },
+  high: {
+    week:  "Speculative and aggressive trades in volatile sectors.",
+    month: "Targeting emerging sectors with high potential.",
+    year:  "Thematic investments in disruptive industries.",
+  }
 };
 
-const riskStyles = {
-  high: { icon: <Zap className="w-5 h-5 text-rose-500" />, border: 'hover:border-rose-400' },
-  medium: { icon: <TrendingUp className="w-5 h-5 text-amber-500" />, border: 'hover:border-amber-400' },
-  low: { icon: <ShieldCheck className="w-5 h-5 text-sky-500" />, border: 'hover:border-sky-400' },
+const riskConfig = {
+  low:    { label: 'Low Risk',    icon: <ShieldCheck className="w-6 h-6 text-emerald-600" /> },
+  medium: { label: 'Medium Risk', icon: <TrendingUp className="w-6 h-6 text-amber-600" /> },
+  high:   { label: 'High Risk',   icon: <Zap className="w-6 h-6 text-rose-600" /> },
 };
 
-const MatrixCell = ({ riskLevel, title, description }: MatrixCellProps) => {
-  const styles = riskStyles[riskLevel];
-  return (
-    <div className={`bg-white p-4 rounded-lg border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-md ${styles.border} hover:-translate-y-1 h-full`}>
-      <div className="flex items-center gap-2.5 mb-2">
-        <div className="flex-shrink-0">{styles.icon}</div>
-        <h4 className="font-semibold text-base text-slate-800">{title}</h4>
-      </div>
-      <p className="text-sm text-slate-500">{description}</p>
+const horizons = [
+  { key: 'week',  label: 'Week' },
+  { key: 'month', label: 'Month' },
+  { key: 'year',  label: 'Year' },
+];
+
+const StrategyMatrix = () => (
+  <div className="max-w-6xl mx-auto">
+    <div className="grid grid-cols-4 gap-px bg-slate-200 rounded-3xl overflow-hidden shadow-sm">
+      {/* Header row */}
+      <div className="bg-white p-8"></div>
+      {horizons.map((h) => (
+        <div key={h.key} className="bg-white p-8 text-center">
+          <div className="font-semibold text-xl text-slate-900">{h.label}</div>
+          <div className="text-xs text-slate-500 mt-1">Investment Horizon</div>
+        </div>
+      ))}
+
+      {/* Risk rows */}
+      {(['low', 'medium', 'high'] as const).map((riskKey) => {
+        const config = riskConfig[riskKey];
+        return (
+          <Fragment key={riskKey}>
+            {/* Risk label column */}
+            <div className="bg-white p-8 border-r border-slate-200 flex items-center gap-5">
+              <div className="flex-shrink-0">{config.icon}</div>
+              <div>
+                <div className="font-semibold text-2xl text-slate-900">{config.label}</div>
+                <div className="text-xs text-slate-500 mt-1">Risk Level</div>
+              </div>
+            </div>
+
+            {/* Strategy cells */}
+            {horizons.map((h) => (
+              <div 
+                key={h.key} 
+                className="bg-white p-8 hover:bg-emerald-50/50 transition-colors border-l border-slate-100 flex items-center"
+              >
+                <p className="text-slate-600 leading-relaxed text-[15px]">
+                  {strategies[riskKey][h.key as keyof typeof strategies.low]}
+                </p>
+              </div>
+            ))}
+          </Fragment>
+        );
+      })}
     </div>
-  );
-};
-
+  </div>
+);
 
 /* ---------------------------------------------------
-   PÁGINA PRINCIPAL
+   LANDING PAGE – COMPLETA Y CORREGIDA
 --------------------------------------------------- */
 export default function LandingPage() {
   const [data, setData] = useState<SectorData[]>([]);
@@ -131,7 +180,6 @@ export default function LandingPage() {
         setData(dashboardResponse.data.currentData || []);
         setPreviousData(dashboardResponse.data.previousData || []);
         setLatestAnalysisDate(dateResponse.data.latest_date);
-
       } catch (err) {
         console.error(err);
         setError('Failed to fetch sector data. Please try again later.');
@@ -142,58 +190,67 @@ export default function LandingPage() {
     fetchPublicData();
   }, []);
 
-  const heroSectors = [...data]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
-  
+  const heroSectors = [...data].sort(() => Math.random() - 0.5).slice(0, 4);
   const formattedDate = formatDate(latestAnalysisDate);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
 
       {/* HERO */}
-      <section className="relative bg-slate-900 text-white min-h-screen flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-grid-slate-800 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
-        <div className="absolute inset-0 pointer-events-none [background:radial-gradient(ellipse_at_center,transparent_20%,#020617)]" />
+      <section className="relative bg-slate-900 text-white min-h-[100dvh] flex items-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#334155_0.8px,transparent_1px)] [background-size:4px_4px]" />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-              Unlock Market-Leading Sector Insights
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-16 grid md:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+              <span className="text-xs font-medium tracking-widest uppercase">Live Market Intelligence</span>
+            </div>
+
+            <h1 className="text-6xl md:text-7xl font-bold tracking-tighter leading-none">
+              Sector Momentum.<br />
+              <span className="bg-gradient-to-r from-emerald-400 to-white bg-clip-text text-transparent">Revealed Weekly.</span>
             </h1>
-            <p className="text-xl text-slate-300 leading-relaxed">
-              Data-driven weekly signals to overweight or underweight sectors. Build smarter portfolios with proprietary momentum analysis.
+
+            <p className="text-xl text-slate-300 max-w-lg">
+              Data-driven signals that help you overweight the right sectors at the right time. Built for serious investors.
             </p>
-            <a href="/signup" className="inline-flex items-center px-8 py-4 bg-teal-500 text-white font-semibold rounded-lg shadow-lg hover:bg-teal-600 transition-all duration-300">
-              Get Started for Free
-              <ChevronRight className="ml-2 w-5 h-5" />
-            </a>
+
+            <div className="flex flex-wrap gap-4">
+              <Link href="/signup" className="inline-flex items-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 shadow-xl shadow-emerald-900/30">
+                Get Started Free
+                <ChevronRight className="ml-3 w-5 h-5" />
+              </Link>
+              <Link href="#weekly-analysis" className="inline-flex items-center px-8 py-4 border border-white/30 hover:bg-white/10 text-white font-semibold rounded-2xl transition-all">
+                See Latest Analysis
+              </Link>
+            </div>
           </div>
 
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
-              {loading
-                ? [...Array(4)].map((_, i) => (
-                    <div key={i} className="h-28 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse" />
-                  ))
-                : heroSectors.map((sector) => (
-                    <HeroSectorCard
-                      key={sector.sector}
-                      sector={sector.sector}
-                      signal={sector.signal}
-                      momentum={sector.score}
-                      rank={sector.rank}
-                    />
-                  ))
-              }
+              {loading ? (
+                [...Array(4)].map((_, i) => (
+                  <div key={i} className="h-40 bg-slate-800/50 rounded-2xl animate-pulse" />
+                ))
+              ) : (
+                heroSectors.map((sector) => (
+                  <HeroSectorCard
+                    key={sector.sector}
+                    sector={sector.sector}
+                    signal={sector.signal}
+                    momentum={sector.score}
+                    rank={sector.rank}
+                  />
+                ))
+              )}
             </div>
+
             {!loading && latestAnalysisDate && (
-              <div className="text-center md:text-right px-2">
-                <p className="text-sm text-slate-400">
-                  Strategic Sector Overview for a 2-4 Week Investment Horizon.
-                </p>
-                <p className="text-xs text-slate-500 flex items-center justify-center md:justify-end mt-1">
-                  <Calendar className="w-3 h-3 mr-1.5" />
+              <div className="text-right px-2">
+                <p className="text-xs text-slate-500 flex items-center justify-end">
+                  <Calendar className="w-3.5 h-3.5 mr-1.5" />
                   Analysis Date: {formattedDate}
                 </p>
               </div>
@@ -201,93 +258,71 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      
-      {/* =================================================== */}
-      {/* ===== SECCIÓN DE MATRIZ 3X3 COMPACTA Y REORDENADA ===== */}
-      {/* =================================================== */}
-      <section className="py-20 md:py-28 bg-slate-100">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-4xl font-bold text-slate-800">
-              Find Your Perfect Sector Strategy
-            </h2>
-            <p className="mt-4 text-lg text-slate-600">
-              One size doesn't fit all. Match your timeline and risk profile to discover the ideal strategy, from short-term trades to long-term wealth building.
+
+      {/* CHOOSE YOUR EDGE – 3x3 MATRIX */}
+      <section className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold tracking-tight text-slate-900">Choose Your Edge</h2>
+            <p className="mt-5 text-lg text-slate-600 max-w-2xl mx-auto">
+              Match your investment horizon and risk tolerance with proven sector strategies.
             </p>
           </div>
-          
-          {/* MATRIZ COMPACTA Y REORDENADA */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Low Risk (Arriba) */}
-            <MatrixCell riskLevel="low" title="Weekly Low Risk" description="Minimize volatility with sectors showing stable leadership and proven relative strength." />
-            <MatrixCell riskLevel="low" title="Monthly Low Risk" description="Durable, low-beta sectors offering stability and potential income generation." />
-            <MatrixCell riskLevel="low" title="Yearly Low Risk" description="High-quality, blue-chip sectors for steady, multi-year wealth compounding." />
-            
-            {/* Medium Risk (Centro) */}
-            <MatrixCell riskLevel="medium" title="Weekly Medium Risk" description="Our core model. Target established trends and follow institutional capital flows." />
-            <MatrixCell riskLevel="medium" title="Monthly Medium Risk" description="A balanced approach aligning with macro shifts to build a resilient core portfolio." />
-            <MatrixCell riskLevel="medium" title="Yearly Medium Risk" description="Pinpoint market leaders in established secular growth trends for compounding capital." />
-            
-            {/* High Risk (Abajo) */}
-            <MatrixCell riskLevel="high" title="Weekly High Risk" description="Focus on high-beta sectors with explosive short-term momentum and volume spikes." />
-            <MatrixCell riskLevel="high" title="Monthly High Risk" description="Identify early-stage secular trends and disruptive technologies for multi-month growth." />
-            <MatrixCell riskLevel="high" title="Yearly High Risk" description="Contrarian plays in undervalued sectors with long-term exponential potential." />
-          </div>
+
+          <StrategyMatrix />
         </div>
       </section>
 
- 
-      {/* LIVE TABLE */}
-      <section id="weekly-analysis" className="py-24 bg-white">
+      {/* WEEKLY ANALYSIS TABLE */}
+      <section id="weekly-analysis" className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
-          
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-slate-800 flex items-center justify-center gap-3">
-              <BarChart3 className="w-8 h-8 text-teal-500" />
-              Sample: Weekly Sector Rotation
-            </h2>
-            {/* === TEXTO MEJORADO === */}
-            <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">
-              Below is a sample of our flagship <strong>'Weekly Medium Risk'</strong> analysis. This data-driven ranking helps identify tactical opportunities over a 2-4 week horizon.
+            <div className="inline-flex items-center gap-3 mb-4">
+              <BarChart3 className="w-9 h-9 text-emerald-600" />
+              <h2 className="text-4xl font-bold tracking-tight text-slate-900">Monthly Sector Rotation</h2>
+            </div>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Live sample of our flagship <span className="font-semibold text-emerald-700">'Medium Risk'</span> analysis — updated every week.
             </p>
             {!loading && latestAnalysisDate && (
-                 <p className="text-sm text-slate-500 flex items-center justify-center mt-2">
-                    <Calendar className="w-4 h-4 mr-1.5" />
-                    Latest Analysis: {formattedDate}
-                </p>
+              <p className="mt-3 text-sm text-slate-500 flex items-center justify-center">
+                <Calendar className="w-4 h-4 mr-1.5" />
+                Latest update: {formattedDate}
+              </p>
             )}
           </div>
-          
-          <div className="bg-white rounded-xl shadow-xl p-4 md:p-6 border border-slate-200">
+
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
             {loading ? (
-              <div className="text-center py-12 text-slate-500">Loading latest data...</div>
+              <div className="py-20 text-center text-slate-500">Loading latest sector rankings...</div>
             ) : error ? (
-              <div className="text-center text-red-600 py-12 bg-red-50 rounded-lg">{error}</div>
+              <div className="py-20 text-center text-red-600">{error}</div>
             ) : (
               <SectorTable data={data} previousData={previousData} />
             )}
           </div>
 
-          {/* === DISCLAIMER === */}
-          <div className="text-center mt-8 max-w-3xl mx-auto">
-             <p className="text-xs text-slate-500">
-                Disclaimer: The information provided is for educational and informational purposes only and should not be considered investment advice. All investments involve risk, including the potential loss of principal. Past performance is not an indicator of future results. Always conduct your own research or consult with a qualified financial advisor before making any investment decisions.
-             </p>
+          <div className="mt-8 text-center">
+            <p className="text-xs text-slate-500 max-w-2xl mx-auto">
+              For educational purposes only. Not investment advice. Past performance does not guarantee future results.
+            </p>
           </div>
-
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 bg-slate-100 text-center">
-        <h2 className="text-4xl font-bold mb-4">Built for Every Investor</h2>
-        <p className="text-xl text-slate-600 mb-8">
-          From free previews to premium portfolio tools.
-        </p>
-        <a href="/signup" className="inline-flex items-center px-10 py-4 bg-teal-500 text-white font-bold rounded-lg shadow-lg hover:bg-teal-600 transition-all">
-          Join Thousands of Investors
-          <Users className="ml-3 w-6 h-6" />
-        </a>
+      {/* FINAL CTA */}
+      <section className="py-28 bg-slate-900 text-white text-center">
+        <div className="max-w-2xl mx-auto px-6">
+          <h2 className="text-5xl font-bold tracking-tight">Ready to invest smarter?</h2>
+          <p className="mt-6 text-xl text-slate-400">Join thousands of investors getting weekly sector signals.</p>
+          
+          <Link href="/signup" className="mt-10 inline-flex items-center px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 text-lg">
+            Start Free Today
+            <Users className="ml-3 w-6 h-6" />
+          </Link>
+          
+          <p className="mt-6 text-xs text-slate-500">No credit card required • Cancel anytime</p>
+        </div>
       </section>
     </div>
   );
