@@ -22,3 +22,9 @@ export interface SectorPro extends SectorBase {
 export type SectorData = SectorBase | SectorPro;
 
 export type TrendStatus = 'Up' | 'Down' | 'Stable';
+
+export const VALID_RISKS = ["low", "medium", "high"] as const;
+export const VALID_HORIZONS = ["week", "month", "year"] as const;
+
+export type Risk = typeof VALID_RISKS[number];
+export type Horizon = typeof VALID_HORIZONS[number];
