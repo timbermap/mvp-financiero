@@ -1,6 +1,7 @@
 // components/sector/types.ts
 
 export interface SectorBase {
+  id?: number;
   analysis_date: string;
   rank: number;
   sector: string;
@@ -9,6 +10,7 @@ export interface SectorBase {
 }
 
 export interface SectorPro extends SectorBase {
+  id?: number;
   market_context: string;
   phase_and_health: string;
   rationale_and_elliott_wave: string;
