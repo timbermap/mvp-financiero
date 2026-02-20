@@ -20,13 +20,13 @@ export interface PortfolioRecommendationData {
   horizon: Horizon;
   ticker: string;
   sector: string | null;
-  suggested_portfolio_percentage: number;
+  suggested_portfolio_percentage: number | null;
   entry_price: number | null;
-  last_price: number;
+  last_price: number | null;
   stop_loss: number | null;
   take_profit: number | null;
   risk_reward_ratio: number | null;
-  direction: PositionDirection;
+  direction: PositionDirection | null;
   trade_tactic: string | null;
   entry_strategy: string | null;
   rationale: string | null;

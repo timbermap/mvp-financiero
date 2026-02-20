@@ -63,7 +63,7 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
   const handleChange = (type: 'risk' | 'horizon', value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(type, value);
-    router.push(`/products/portfolio?${params.toString()}`);
+    router.push(`/product/portfolio?${params.toString()}`);
     setOpenMenu(null);
   };
 

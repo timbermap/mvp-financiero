@@ -2,7 +2,11 @@
 
 import { useEffect, useState, Fragment } from 'react';
 import api from '@/services/api';
+
 import SectorTable from '@/components/sector/SectorTable';
+import PortfolioTable from '@/components/portfolio/PortfolioTable';
+import type { PortfolioRecommendationData } from '@/components/portfolio/types';
+
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -161,28 +165,39 @@ const StrategyMatrix = () => (
    LANDING PAGE – COMPLETA Y CORREGIDA
 --------------------------------------------------- */
 export default function LandingPage() {
-  const [data, setData] = useState<SectorData[]>([]);
+const [data, setData] = useState<SectorData[]>([]);
   const [previousData, setPreviousData] = useState<SectorData[]>([]);
   const [latestAnalysisDate, setLatestAnalysisDate] = useState<string | null>(null);
+  const [portfolioData, setPortfolioData] = useState<PortfolioRecommendationData[]>([]);
+  const [portfolioLatestDate, setPortfolioLatestDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+// === UPDATE the useEffect fetch (replace the whole try block) ===
   useEffect(() => {
     const fetchPublicData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const [dashboardResponse, dateResponse] = await Promise.all([
+        const [dashboardResponse, dateResponse, portfolioResponse] = await Promise.all([
           api.get('/api/v1/dashboard/latest'),
-          api.get('/api/v1/latest-analysis-date')
+          api.get('/api/v1/latest-analysis-date'),
+          api.get('/api/v1/portfolio/latest')   // ← NEW
         ]);
         
         setData(dashboardResponse.data.currentData || []);
         setPreviousData(dashboardResponse.data.previousData || []);
         setLatestAnalysisDate(dateResponse.data.latest_date);
+
+        // ← NEW: Portfolio data
+        const portData = portfolioResponse.data.latestData || [];
+        setPortfolioData(portData);
+        if (portData.length > 0) {
+          setPortfolioLatestDate(portData[0].analysis_date);
+        }
       } catch (err) {
         console.error(err);
-        setError('Failed to fetch sector data. Please try again later.');
+        setError('Failed to fetch data. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -279,7 +294,7 @@ export default function LandingPage() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-3 mb-4">
               <BarChart3 className="w-9 h-9 text-emerald-600" />
-              <h2 className="text-4xl font-bold tracking-tight text-slate-900">Monthly Sector Rotation</h2>
+              <h2 className="text-4xl font-bold tracking-tight text-slate-900">Sample Monthly Sector Rotation</h2>
             </div>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Live sample of our flagship <span className="font-semibold text-emerald-700">'Medium Risk'</span> analysis — updated every week.
@@ -306,6 +321,53 @@ export default function LandingPage() {
             <p className="text-xs text-slate-500 max-w-2xl mx-auto">
               For educational purposes only. Not investment advice. Past performance does not guarantee future results.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ==================== NEW: PORTFOLIO PREVIEW SECTION ==================== */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-3 mb-4">
+              <TrendingUp className="w-9 h-9 text-emerald-600" />
+              <h2 className="text-4xl font-bold tracking-tight text-slate-900">Sample Portfolio Recommendations</h2>
+            </div>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Real 5-stock examples from our <span className="font-semibold text-emerald-700">Medium Risk • Monthly Horizon</span> strategy
+            </p>
+            {portfolioLatestDate && (
+              <p className="mt-3 text-sm text-slate-500 flex items-center justify-center">
+                <Calendar className="w-4 h-4 mr-1.5" />
+                Updated: {formatDate(portfolioLatestDate)}
+              </p>
+            )}
+          </div>
+
+          {loading ? (
+            <div className="py-20 text-center text-slate-500">Loading portfolio examples...</div>
+          ) : portfolioData.length > 0 ? (
+            <div className="max-w-6xl mx-auto">
+              <PortfolioTable 
+                title="5-Stock Balanced Portfolio" 
+                data={portfolioData.filter(item => item.portfolio_size === 5)} 
+              />
+            </div>
+          ) : (
+            <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-3xl">
+              Portfolio recommendations coming soon...
+            </div>
+          )}
+
+          <div className="text-center mt-12">
+            <Link 
+              href="/signup"
+              className="inline-flex items-center px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all text-lg shadow-xl shadow-emerald-900/30"
+            >
+              Explore More Portfolio Sizes (3 / 5 / 8 stocks): Free Signup
+              <ChevronRight className="ml-3 w-5 h-5" />
+            </Link>
+            <p className="mt-4 text-xs text-slate-500">Full historical data &amp; Pro access available after login</p>
           </div>
         </div>
       </section>
