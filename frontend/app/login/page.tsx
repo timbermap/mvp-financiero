@@ -1,125 +1,274 @@
-// frontend/app/login/page.tsx
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'; // Importaciones de Firestore
-import { auth, db } from '@/lib/firebase'; // Importamos 'auth' y 'db'
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword 
+} from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
-export default function LoginPage() {
+import { 
+  Mail, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  ArrowRight 
+} from 'lucide-react';
+
+export default function AuthPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false); // Para cambiar entre Login y Registro
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('register') === 'true') {
+      setIsRegistering(true);
+    }
+  }, [searchParams]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
+    if (isRegistering) {
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
+      if (!acceptedTerms || !acceptedPrivacy || !acceptedDisclaimer) {
+        setError('You must accept the Terms of Service, Privacy Policy and the Disclaimer.');
+        return;
+      }
+    }
+
+    setLoading(true);
+
     try {
       if (isRegistering) {
-        // --- Lógica de Registro ---
-        // 1. Crear el usuario en Firebase Auth
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const newUser = userCredential.user;
 
-        // 2. Crear el documento del usuario en la base de datos Firestore
-        // Esto es CRUCIAL para que el AuthContext pueda encontrar su 'tier'
         await setDoc(doc(db, "users", newUser.uid), {
           email: newUser.email,
-          tier: 'FREE', // Asignamos el tier por defecto a los nuevos usuarios
-          createdAt: serverTimestamp(), // Buena práctica: guardar la fecha de creación
+          tier: 'FREE',
+          acceptedTerms: true,
+          acceptedPrivacy: true,
+          acceptedDisclaimer: true,
+          createdAt: serverTimestamp(),
         });
-
       } else {
-        // --- Lógica de Inicio de Sesión ---
         await signInWithEmailAndPassword(auth, email, password);
       }
 
-      // Si todo va bien, redirigimos al dashboard
-      router.push('/dashboard'); 
-
+      router.push('/dashboard');
     } catch (err: any) {
-      console.error("Error de autenticación:", err);
-      // Mensajes de error amigables para el usuario
       if (err.code === 'auth/invalid-credential') {
-        setError('El email o la contraseña son incorrectos.');
+        setError('Invalid email or password.');
       } else if (err.code === 'auth/email-already-in-use') {
-        setError('Este email ya está registrado. Intenta iniciar sesión.');
+        setError('Email already registered. Please log in.');
       } else if (err.code === 'auth/weak-password') {
-        setError('La contraseña es muy débil. Debe tener al menos 6 caracteres.');
+        setError('Password must be at least 6 characters.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
       } else {
-        setError('Ocurrió un error inesperado. Por favor, intenta de nuevo.');
+        setError('Something went wrong. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
+  const signupDisabled = loading || 
+    (isRegistering && (!acceptedTerms || !acceptedPrivacy || !acceptedDisclaimer || password !== confirmPassword));
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
-          {isRegistering ? 'Crear una Cuenta' : 'Bienvenido de Nuevo'}
-        </h2>
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(#334155_0.8px,transparent_1px)] [background-size:4px_4px]" />
+
+      <div className="relative z-10 w-full max-w-[400px]">
         
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm" role="alert">
-            {error}
+        <div className="bg-slate-900/95 border border-slate-700/80 rounded-3xl p-9 shadow-2xl">
+          
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-semibold text-white">
+              {isRegistering ? 'Create Account' : 'Welcome Back'}
+            </h1>
+            <p className="text-slate-400 mt-2 text-sm">
+              {isRegistering 
+                ? 'Only email registration is supported in your region' 
+                : 'Log in to access your dashboard'}
+            </p>
           </div>
-        )}
 
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="password"className="block text-sm font-medium text-gray-700">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              autoComplete={isRegistering ? "new-password" : "current-password"}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200"
-          >
-            {isRegistering ? 'Registrarse' : 'Iniciar Sesión'}
-          </button>
-        </form>
+          {error && (
+            <div className="mb-6 bg-red-950/70 border border-red-500/30 text-red-400 px-5 py-3 rounded-2xl text-sm">
+              {error}
+            </div>
+          )}
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            {isRegistering ? '¿Ya tienes una cuenta?' : '¿Aún no tienes cuenta?'}
+          <form onSubmit={handleAuth} className="space-y-6">
+            
+            {/* Email */}
+            <div className="relative">
+              <Mail className="absolute left-5 top-4.5 w-5 h-5 text-slate-500" />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-2xl pl-12 py-4 text-white placeholder:text-slate-400 text-[15px]"
+                placeholder="Email address"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="relative">
+              <Lock className="absolute left-5 top-4.5 w-5 h-5 text-slate-500" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-2xl pl-12 pr-12 py-4 text-white placeholder:text-slate-400 text-[15px]"
+                placeholder="Password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-5 top-4 text-slate-400 hover:text-slate-300"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
+            {/* Confirm Password - only signup */}
+            {isRegistering && (
+              <div className="relative">
+                <Lock className="absolute left-5 top-4.5 w-5 h-5 text-slate-500" />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-2xl pl-12 pr-12 py-4 text-white placeholder:text-slate-400 text-[15px]"
+                  placeholder="Confirm password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-5 top-4 text-slate-400 hover:text-slate-300"
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            )}
+
+            {/* Consentimiento con links */}
+            {isRegistering ? (
+              <div className="space-y-3 pt-2 text-sm text-slate-400">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="mt-1 accent-emerald-500 w-4 h-4"
+                  />
+                  I accept the{' '}
+                  <Link href="/terms" className="text-emerald-400 hover:underline">Terms of Service</Link>
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={acceptedPrivacy}
+                    onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                    className="mt-1 accent-emerald-500 w-4 h-4"
+                  />
+                  I accept the{' '}
+                  <Link href="/privacy" className="text-emerald-400 hover:underline">Privacy Policy</Link>
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={acceptedDisclaimer}
+                    onChange={(e) => setAcceptedDisclaimer(e.target.checked)}
+                    className="mt-1 accent-emerald-500 w-4 h-4"
+                  />
+                  I have read the{' '}
+                  <Link href="/disclaimer" className="text-emerald-400 hover:underline">Disclaimer</Link>
+                </label>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 text-center pt-1">
+                By logging in, you agree to our{' '}
+                <Link href="/terms" className="text-emerald-400 hover:underline">Terms of Service</Link> and{' '}
+                <Link href="/privacy" className="text-emerald-400 hover:underline">Privacy Policy</Link>.
+              </p>
+            )}
+
+            {/* Botón grande emerald */}
+            <button
+              type="submit"
+              disabled={signupDisabled}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-400 transition-all py-4 rounded-2xl font-semibold text-base flex items-center justify-center gap-3 shadow-xl shadow-emerald-900/50"
+            >
+              {loading 
+                ? 'Processing...' 
+                : isRegistering 
+                  ? 'Create Account' 
+                  : 'Log In'
+              }
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </form>
+
+          {/* Links inferiores */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 text-sm">
+            {!isRegistering && (
+              <button 
+                onClick={() => {/* ← agrega tu flujo de forgot password aquí */}}
+                className="text-emerald-400 hover:text-emerald-300"
+              >
+                Forgot password?
+              </button>
+            )}
+            
             <button
               onClick={() => {
                 setIsRegistering(!isRegistering);
-                setError(''); // Limpiamos errores al cambiar de modo
+                setError('');
+                setConfirmPassword('');
+                setAcceptedTerms(false);
+                setAcceptedPrivacy(false);
+                setAcceptedDisclaimer(false);
               }}
-              className="font-medium text-blue-600 hover:text-blue-500 ml-1"
+              className="text-emerald-400 hover:text-emerald-300 font-medium"
             >
-              {isRegistering ? 'Inicia Sesión' : 'Regístrate gratis'}
+              {isRegistering 
+                ? 'Already have an account? Log in' 
+                : 'Create free account'
+              }
             </button>
-          </p>
+          </div>
         </div>
+
+        <p className="text-center text-xs text-slate-500 mt-8">
+          Secured by Firebase • No credit card required
+        </p>
       </div>
     </div>
   );

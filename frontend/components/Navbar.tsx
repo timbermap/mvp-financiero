@@ -201,7 +201,7 @@ export default function Navbar() {
                     Log in
                   </Link>
                   <Link 
-                    href="/signup" 
+                    href="/login?register=true" 
                     className="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 transition-all active:scale-95"
                   >
                     Get started free
@@ -241,7 +241,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link href="/login" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Log in</Link>
-                <Link href="/signup" className="block w-full text-center px-4 py-3 font-semibold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700">Get started free</Link>
+                <Link href="/login?register=true" className="block w-full text-center px-4 py-3 font-semibold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700">Get started free</Link>
               </>
             )}
           </div>

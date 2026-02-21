@@ -233,7 +233,7 @@ const [data, setData] = useState<SectorData[]>([]);
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Link href="/signup" className="inline-flex items-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 shadow-xl shadow-emerald-900/30">
+              <Link href="/login?register=true" className="inline-flex items-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 shadow-xl shadow-emerald-900/30">
                 Get Started Free
                 <ChevronRight className="ml-3 w-5 h-5" />
               </Link>
@@ -361,7 +361,7 @@ const [data, setData] = useState<SectorData[]>([]);
 
           <div className="text-center mt-12">
             <Link 
-              href="/signup"
+              href="/login?register=true"
               className="inline-flex items-center px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all text-lg shadow-xl shadow-emerald-900/30"
             >
               Explore More Portfolio Sizes (3 / 5 / 8 stocks): Free Signup
@@ -378,7 +378,7 @@ const [data, setData] = useState<SectorData[]>([]);
           <h2 className="text-5xl font-bold tracking-tight">Ready to invest smarter?</h2>
           <p className="mt-6 text-xl text-slate-400">Join thousands of investors getting weekly sector signals.</p>
           
-          <Link href="/signup" className="mt-10 inline-flex items-center px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 text-lg">
+          <Link href="/login?register=true" className="mt-10 inline-flex items-center px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 text-lg">
             Start Free Today
             <Users className="ml-3 w-6 h-6" />
           </Link>
