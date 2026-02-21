@@ -111,7 +111,7 @@ export default function FAQPage() {
       title="Frequently Asked Questions"
       subtitle="Everything you need to know about our platform, data models, and subscriptions."
     >
-      <ContentSection>
+      <ContentSection title="Browse FAQs">
         {/* Search */}
         <div className="relative max-w-2xl mx-auto mb-12">
           <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400">
