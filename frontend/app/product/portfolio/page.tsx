@@ -5,15 +5,18 @@
 import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-// Importar tipos y constantes desde la nueva ruta
-import { Risk, Horizon, VALID_RISKS, VALID_HORIZONS, VALID_PORTFOLIO_SIZES } from '@/components/portfolio/types';
+import {
+  Risk,
+  Horizon,
+  VALID_RISKS,
+  VALID_HORIZONS,
+  VALID_PORTFOLIO_SIZES,
+} from '@/components/portfolio/types';
 
-// Importar componentes desde la nueva ruta global
 import PortfolioHeader from '@/components/portfolio/PortfolioHeader';
 import PortfolioStatusMessage from '@/components/portfolio/PortfolioStatusMessage';
 import PortfolioTable from '@/components/portfolio/PortfolioTable';
 
-// Importar custom hook desde la nueva ruta global
 import { usePortfolioData } from '@/components/portfolio/usePortfolioData';
 
 export default function PortfolioPage() {
@@ -23,18 +26,20 @@ export default function PortfolioPage() {
   const risk = searchParams.get('risk') as Risk | null;
   const horizon = searchParams.get('horizon') as Horizon | null;
 
-  // --- Parameter Validation Effect ---
+  // --- Parameter Validation ---
   useEffect(() => {
-    // Redirigir si los parámetros son inválidos o faltan
-    if (!risk || !VALID_RISKS.includes(risk) || !horizon || !VALID_HORIZONS.includes(horizon)) {
-      // Solo redirigir si hay searchParams, para evitar bucles en la carga inicial sin parámetros
+    if (
+      !risk ||
+      !VALID_RISKS.includes(risk) ||
+      !horizon ||
+      !VALID_HORIZONS.includes(horizon)
+    ) {
       if (searchParams.toString()) {
-        router.push('/dashboard'); // O a una página de error/default
+        router.push('/dashboard');
       }
     }
   }, [risk, horizon, router, searchParams]);
 
-  // Usar el custom hook para la lógica de datos
   const {
     groupedPortfolioData,
     dates,
@@ -44,8 +49,13 @@ export default function PortfolioPage() {
     error,
   } = usePortfolioData(risk, horizon);
 
-  // Si los parámetros son inválidos, no renderizar nada hasta la redirección
-  if (!risk || !VALID_RISKS.includes(risk) || !horizon || !VALID_HORIZONS.includes(horizon)) {
+  // Prevent render while redirecting
+  if (
+    !risk ||
+    !VALID_RISKS.includes(risk) ||
+    !horizon ||
+    !VALID_HORIZONS.includes(horizon)
+  ) {
     return null;
   }
 
@@ -57,18 +67,24 @@ export default function PortfolioPage() {
         </h1>
       </div>
 
+      {/* --- STATUS STATES --- */}
       {loading ? (
-        <PortfolioStatusMessage type="loading" message="Loading portfolio recommendations..." />
+        <PortfolioStatusMessage
+          type="loading"
+          message="Loading portfolio recommendations..."
+        />
       ) : error ? (
-        <PortfolioStatusMessage type="error" message={error} />
+        <PortfolioStatusMessage
+          type="error"
+          message={error}
+        />
       ) : dates.length === 0 ? (
         <PortfolioStatusMessage
           type="no-data"
-          message="Loading data..."
+          message="Loading data.."
         />
       ) : (
         <>
-          {/* Pass dates and onDateChange (setSelectedDate) to PortfolioHeader */}
           <PortfolioHeader
             horizon={horizon}
             risk={risk}

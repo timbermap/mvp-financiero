@@ -22,8 +22,8 @@ const PortfolioStatusMessage: React.FC<PortfolioStatusMessageProps> = ({ type, m
       iconColorClass = 'text-red-500';
       break;
     case 'no-data':
-      icon = <AlertTriangle className="w-8 h-8" />;
-      iconColorClass = 'text-amber-500';
+      icon = <Loader2 className="w-8 h-8 animate-spin" />;
+      iconColorClass = 'text-indigo-500';
       break;
     default:
       icon = null;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Calendar, BarChart3, ChevronDown } from 'lucide-react';
+import { Calendar, BarChart3, ChevronDown, ExternalLink } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 import { Horizon, Risk, VALID_RISKS, VALID_HORIZONS } from './types';
@@ -49,7 +49,13 @@ const SectorHeader: React.FC<SectorHeaderProps> = ({
       })
     : '';
 
-  // Cerrar al click afuera
+  // ✅ ALWAYS point to portfolio page
+  const portfolioUrl =
+    horizon && risk
+      ? `/product/portfolio?risk=${risk}&horizon=${horizon}`
+      : '/product/portfolio';
+
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -84,7 +90,9 @@ const SectorHeader: React.FC<SectorHeaderProps> = ({
         >
           {current || 'N/A'}
           <ChevronDown
-            className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''} group-hover:text-emerald-600`}
+            className={`w-4 h-4 transition-transform ${
+              isOpen ? 'rotate-180' : ''
+            } group-hover:text-emerald-600`}
           />
         </span>
 
@@ -95,10 +103,16 @@ const SectorHeader: React.FC<SectorHeaderProps> = ({
                 key={option}
                 onClick={() => handleChange(type, option)}
                 className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center justify-between transition-colors
-                  ${option === current ? 'text-emerald-700 font-medium bg-emerald-50' : 'text-slate-700'}`}
+                  ${
+                    option === current
+                      ? 'text-emerald-700 font-medium bg-emerald-50'
+                      : 'text-slate-700'
+                  }`}
               >
                 <span className="capitalize">{option}</span>
-                {option === current && <span className="text-emerald-600">✓</span>}
+                {option === current && (
+                  <span className="text-emerald-600">✓</span>
+                )}
               </button>
             ))}
           </div>
@@ -110,39 +124,62 @@ const SectorHeader: React.FC<SectorHeaderProps> = ({
   return (
     <div className="mb-10">
       <div className="bg-slate-50 border border-slate-200 rounded-2xl py-5 px-8">
-        <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[17px] text-slate-700">
-          <div className="flex items-center gap-2.5">
-            <BarChart3 className="w-5 h-5 text-emerald-600" />
-            <span>
-              Horizon:{' '}
-              {horizon && renderDropdown(horizon, VALID_HORIZONS, 'horizon')}
-              {' - '}
-              Risk:{' '}
-              {risk && renderDropdown(risk, VALID_RISKS, 'risk')}
-            </span>
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-x-7 gap-y-3 text-[17px] text-slate-700">
 
-          {selectedDate && (
-            <span className="text-slate-300 text-2xl font-light leading-none">/</span>
-          )}
+          {/* LEFT SIDE */}
+          <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
 
-          {selectedDate && (
+            {/* Horizon + Risk */}
             <div className="flex items-center gap-2.5">
-              <Calendar className="w-5 h-5 text-emerald-600" />
+              <BarChart3 className="w-5 h-5 text-emerald-600" />
               <span>
-                Analysis Date:{' '}
-                {dates.length > 0 ? (
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={onDateChange}
-                    includeDates={dates}
-                    customInput={<CustomDateTrigger />}
-                  />
-                ) : (
-                  <span className="font-semibold text-slate-900">{formattedDate}</span>
-                )}
+                Horizon:{' '}
+                {horizon && renderDropdown(horizon, VALID_HORIZONS, 'horizon')}
+                {' - '}
+                Risk:{' '}
+                {risk && renderDropdown(risk, VALID_RISKS, 'risk')}
               </span>
             </div>
+
+            {/* Separator */}
+            {selectedDate && (
+              <span className="text-slate-300 text-2xl font-light leading-none">
+                /
+              </span>
+            )}
+
+            {/* Analysis Date */}
+            {selectedDate && (
+              <div className="flex items-center gap-2.5">
+                <Calendar className="w-5 h-5 text-emerald-600" />
+                <span>
+                  Analysis Date:{' '}
+                  {dates.length > 0 ? (
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={onDateChange}
+                      includeDates={dates}
+                      customInput={<CustomDateTrigger />}
+                    />
+                  ) : (
+                    <span className="font-semibold text-slate-900">
+                      {formattedDate}
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT SIDE LINK → ALWAYS portfolio */}
+          {horizon && risk && (
+            <a
+              href={portfolioUrl}
+              className="flex items-center gap-1 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+            >
+              View portfolio
+              <ExternalLink className="w-4 h-4" />
+            </a>
           )}
         </div>
       </div>
