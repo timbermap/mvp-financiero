@@ -1,3 +1,4 @@
+// src/app/dashboard/page.tsx
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
@@ -19,7 +20,7 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/services/api';
 
 /* ---------------------------------------------------
-   STRATEGY CARD – Lighter Clean Version
+   STRATEGY CARD
 --------------------------------------------------- */
 
 type StrategyCardProps = {
@@ -41,8 +42,8 @@ const StrategyCard = ({
 }: StrategyCardProps) => {
   const riskConfig = {
     Low: {
-      color: 'bg-emerald-400', // Lighter accent
-      icon: <Shield className="w-6 h-6 text-emerald-500" />, // Lighter icon
+      color: 'bg-emerald-400',
+      icon: <Shield className="w-6 h-6 text-emerald-500" />,
     },
     Medium: {
       color: 'bg-amber-400',
@@ -61,7 +62,7 @@ const StrategyCard = ({
       className={`relative flex flex-col h-full rounded-2xl p-6 bg-white border border-slate-200 transition-all duration-300
       ${
         isLocked
-          ? 'opacity-75'
+          ? 'opacity-80'
           : 'hover:shadow-lg hover:-translate-y-1 hover:border-slate-300'
       }`}
     >
@@ -85,48 +86,46 @@ const StrategyCard = ({
 
       {/* Actions */}
       <div className="mt-6 flex gap-3">
-        {links.map((link, index) => {
-          const linkHref = isLocked ? '/upgrade' : link.href;
-
-          return (
-            <Link
-              key={index}
-              href={linkHref}
-              className={`flex-1 flex items-center justify-center gap-2 text-xs font-medium px-4 py-2.5 rounded-lg transition
-                ${
-                  isLocked
-                    ? 'bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed'
-                    : 'bg-slate-700 text-white hover:bg-emerald-500' // Lighter default button and hover
-                }`}
-            >
-              {link.icon}
-              {link.name}
-            </Link>
-          );
-        })}
+        {links.map((link, index) => (
+          <Link
+            key={index}
+            href={link.href}
+            className="flex-1 flex items-center justify-center gap-2 text-xs font-medium px-4 py-2.5 rounded-lg transition bg-slate-700 text-white hover:bg-emerald-500"
+          >
+            {link.icon}
+            {link.name}
+          </Link>
+        ))}
       </div>
 
-      {/* Locked Overlay */}
+      {/* Locked Overlay - Blocks clicks and redirects to upgrade */}
       {isLocked && (
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] rounded-2xl flex items-center justify-center">
-          <div className="text-xs font-semibold text-slate-600 flex items-center gap-1">
-            <Crown className="w-4 h-4 text-amber-400" />
-            PRO Only
-          </div>
-        </div>
+        <Link 
+          href="/upgrade" 
+          className="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center z-10 hover:bg-white/70 transition cursor-pointer"
+        >
+          <Crown className="w-8 h-8 text-amber-500 mb-2" />
+          <span className="text-sm font-bold text-slate-800">Limit Reached</span>
+          <span className="text-xs font-medium text-slate-600 mt-1 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">
+            Upgrade to Unlock
+          </span>
+        </Link>
       )}
     </div>
   );
 };
 
 /* ---------------------------------------------------
-   DASHBOARD – 3x3 Layout (Horizon ↓ • Risk →)
+   DASHBOARD
 --------------------------------------------------- */
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [tierLoading, setTierLoading] = useState(true);
+  
+  const [usage, setUsage] = useState<any>(null);
+  const [usageLoading, setUsageLoading] = useState(true); // <-- NEW: Wait for usage to load
 
   useEffect(() => {
     if (!loading && user) {
@@ -137,10 +136,24 @@ export default function DashboardPage() {
         .finally(() => setTierLoading(false));
     } else if (!loading && !user) {
       setTierLoading(false);
+      setUsageLoading(false);
     }
   }, [loading, user]);
 
-  if (loading || tierLoading) {
+  useEffect(() => {
+    if (subscriptionTier === 'FREE') {
+      api
+        .get('/api/v1/usage/status')
+        .then((res) => setUsage(res.data))
+        .catch(console.error)
+        .finally(() => setUsageLoading(false));
+    } else if (subscriptionTier === 'PRO') {
+      setUsageLoading(false);
+    }
+  }, [subscriptionTier]);
+
+  // Wait until ALL data is loaded before rendering to prevent accidental clicks
+  if (loading || tierLoading || usageLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
@@ -157,10 +170,7 @@ export default function DashboardPage() {
           </h2>
           <p className="mt-2 text-sm text-slate-500">
             Please{' '}
-            <Link
-              href="/login"
-              className="text-emerald-500 hover:underline"
-            >
+            <Link href="/login" className="text-emerald-500 hover:underline">
               sign in
             </Link>
           </p>
@@ -218,6 +228,27 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        {/* FREE USAGE BANNER */}
+        {isFreeUser && usage && (
+          <div className="mb-8 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Clock className="w-6 h-6 text-emerald-600" />
+              <div>
+                <p className="font-semibold text-emerald-800">Free clicks remaining this month</p>
+                <p className="text-emerald-700 text-sm">
+                  {usage.clicks_used} of {usage.limit} used • {usage.remaining} left
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/upgrade"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition"
+            >
+              Upgrade to PRO → Unlimited
+            </Link>
+          </div>
+        )}
+
         <div className="space-y-12">
           {horizons.map((horizon) => (
             <section key={horizon.name}>
@@ -230,18 +261,19 @@ export default function DashboardPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {horizon.strategies.map((strat) => {
-                  const isFreeAccess =
-                    horizon.name === 'Month' &&
-                    strat.riskLevel === 'Medium';
-
-                  const isLocked = isFreeUser && !isFreeAccess;
+                  
+                  // 1. Check if this specific strategy is the "Always Free" one
+                  const isAlwaysFree = strat.riskLevel === 'Medium' && horizon.scenario === 'month';
+                  
+                  // 2. Lock the card if they are out of clicks AND it's not the free strategy
+                  const isLocked = isFreeUser && usage && usage.remaining <= 0 && !isAlwaysFree;
 
                   return (
                     <StrategyCard
                       key={strat.riskLevel}
                       riskLevel={strat.riskLevel}
                       description={strat.description}
-                      isLocked={isLocked}
+                      isLocked={isLocked} // <-- Pass the dynamic lock state
                       links={[
                         {
                           name: 'Rotation',
@@ -264,7 +296,7 @@ export default function DashboardPage() {
 
         {isFreeUser && (
           <div className="mt-12 text-center text-sm text-slate-500">
-            Unlock all strategies with PRO{' '}
+            Unlock unlimited strategies with PRO{' '}
             <Link
               href="/upgrade"
               className="font-semibold text-emerald-500 hover:underline"

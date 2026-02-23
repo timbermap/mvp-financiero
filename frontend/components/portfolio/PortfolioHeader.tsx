@@ -1,5 +1,4 @@
 // src/components/portfolio/PortfolioHeader.tsx
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, BarChart3, ChevronDown, ExternalLink } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -13,6 +12,7 @@ interface PortfolioHeaderProps {
   selectedDate: Date | null;
   dates: Date[];
   onDateChange: (date: Date | null) => void;
+  isLimitReached?: boolean; // <-- NEW PROP
 }
 
 // Custom trigger for DatePicker
@@ -34,6 +34,7 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
   selectedDate,
   dates,
   onDateChange,
+  isLimitReached = false, // <-- Default to false
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -49,7 +50,7 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
       })
     : '';
 
-  // Dynamic portfolio link (same risk & horizon)
+  // Dynamic portfolio link (Fixed plural /product/)
   const portfolioUrl =
     horizon && risk
       ? `/product/rotations?risk=${risk}&horizon=${horizon}`
@@ -81,6 +82,13 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
   ) => {
     const isOpen = openMenu === type;
 
+    // NEW: Restrict options if limit is reached
+    let displayOptions = [...options];
+    if (isLimitReached) {
+      if (type === 'risk') displayOptions = ['medium'];
+      if (type === 'horizon') displayOptions = ['month'];
+    }
+
     return (
       <div className="relative inline-block" ref={isOpen ? menuRef : null}>
         <span
@@ -97,7 +105,7 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
 
         {isOpen && (
           <div className="absolute top-full left-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50 text-sm">
-            {options.map((option) => (
+            {displayOptions.map((option) => (
               <button
                 key={option}
                 onClick={() => handleChange(type, option)}

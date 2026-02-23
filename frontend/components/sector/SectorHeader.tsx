@@ -1,3 +1,4 @@
+// src/components/sector/SectorHeader.tsx
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -13,6 +14,7 @@ interface SectorHeaderProps {
   selectedDate: Date | null;
   dates: Date[];
   onDateChange: (date: Date | null) => void;
+  isLimitReached?: boolean; // <-- NEW PROP
 }
 
 const CustomDateTrigger = React.forwardRef<HTMLSpanElement, any>(
@@ -33,6 +35,7 @@ const SectorHeader: React.FC<SectorHeaderProps> = ({
   selectedDate,
   dates,
   onDateChange,
+  isLimitReached = false, // <-- Default to false
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -49,7 +52,7 @@ const SectorHeader: React.FC<SectorHeaderProps> = ({
       })
     : '';
 
-  // ✅ ALWAYS point to portfolio page
+  // ✅ ALWAYS point to portfolio page (Fixed plural /product/)
   const portfolioUrl =
     horizon && risk
       ? `/product/portfolio?risk=${risk}&horizon=${horizon}`
@@ -82,6 +85,13 @@ const SectorHeader: React.FC<SectorHeaderProps> = ({
   ) => {
     const isOpen = openMenu === type;
 
+    // NEW: Restrict options if limit is reached
+    let displayOptions = [...options];
+    if (isLimitReached) {
+      if (type === 'risk') displayOptions = ['medium'];
+      if (type === 'horizon') displayOptions = ['month'];
+    }
+
     return (
       <div className="relative inline-block" ref={isOpen ? menuRef : null}>
         <span
@@ -98,7 +108,7 @@ const SectorHeader: React.FC<SectorHeaderProps> = ({
 
         {isOpen && (
           <div className="absolute top-full left-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50 text-sm">
-            {options.map((option) => (
+            {displayOptions.map((option) => (
               <button
                 key={option}
                 onClick={() => handleChange(type, option)}

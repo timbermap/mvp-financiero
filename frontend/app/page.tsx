@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState } from 'react';
 import api from '@/services/api';
 
 import SectorTable from '@/components/sector/SectorTable';
@@ -10,12 +10,17 @@ import type { PortfolioRecommendationData } from '@/components/portfolio/types';
 import Link from 'next/link';
 import { 
   ChevronRight, 
-  Users, 
   Calendar, 
-  BarChart3,
   Zap, 
   TrendingUp, 
   ShieldCheck,
+  BarChartHorizontalBig,
+  PieChart,
+  Layers,
+  CheckCircle2,
+  Info,
+  ArrowRight,
+  Lock
 } from 'lucide-react';
 
 // --- TIPOS DE DATOS ---
@@ -85,87 +90,10 @@ const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps)
 };
 
 /* ---------------------------------------------------
-   3x3 STRATEGY MATRIX (CORREGIDO)
---------------------------------------------------- */
-const strategies = {
-  low: {
-    week:  "Capital preservation for short-term stability.",
-    month: "Defensive sectors to minimize volatility.",
-    year:  "Long-term positions in historically stable sectors.",
-  },
-  medium: {
-    week:  "Tactical trades based on immediate bullish signals.",
-    month: "Core strategy focused on upward momentum.",
-    year:  "Investment in sectors poised for cyclical growth.",
-  },
-  high: {
-    week:  "Speculative and aggressive trades in volatile sectors.",
-    month: "Targeting emerging sectors with high potential.",
-    year:  "Thematic investments in disruptive industries.",
-  }
-};
-
-const riskConfig = {
-  low:    { label: 'Low Risk',    icon: <ShieldCheck className="w-6 h-6 text-emerald-600" /> },
-  medium: { label: 'Medium Risk', icon: <TrendingUp className="w-6 h-6 text-amber-600" /> },
-  high:   { label: 'High Risk',   icon: <Zap className="w-6 h-6 text-rose-600" /> },
-};
-
-const horizons = [
-  { key: 'week',  label: 'Week' },
-  { key: 'month', label: 'Month' },
-  { key: 'year',  label: 'Year' },
-];
-
-const StrategyMatrix = () => (
-  <div className="max-w-6xl mx-auto">
-    <div className="grid grid-cols-4 gap-px bg-slate-200 rounded-3xl overflow-hidden shadow-sm">
-      {/* Header row */}
-      <div className="bg-white p-8"></div>
-      {horizons.map((h) => (
-        <div key={h.key} className="bg-white p-8 text-center">
-          <div className="font-semibold text-xl text-slate-900">{h.label}</div>
-          <div className="text-xs text-slate-500 mt-1">Investment Horizon</div>
-        </div>
-      ))}
-
-      {/* Risk rows */}
-      {(['low', 'medium', 'high'] as const).map((riskKey) => {
-        const config = riskConfig[riskKey];
-        return (
-          <Fragment key={riskKey}>
-            {/* Risk label column */}
-            <div className="bg-white p-8 border-r border-slate-200 flex items-center gap-5">
-              <div className="flex-shrink-0">{config.icon}</div>
-              <div>
-                <div className="font-semibold text-2xl text-slate-900">{config.label}</div>
-                <div className="text-xs text-slate-500 mt-1">Risk Level</div>
-              </div>
-            </div>
-
-            {/* Strategy cells */}
-            {horizons.map((h) => (
-              <div 
-                key={h.key} 
-                className="bg-white p-8 hover:bg-emerald-50/50 transition-colors border-l border-slate-100 flex items-center"
-              >
-                <p className="text-slate-600 leading-relaxed text-[15px]">
-                  {strategies[riskKey][h.key as keyof typeof strategies.low]}
-                </p>
-              </div>
-            ))}
-          </Fragment>
-        );
-      })}
-    </div>
-  </div>
-);
-
-/* ---------------------------------------------------
-   LANDING PAGE – COMPLETA Y CORREGIDA
+   LANDING PAGE
 --------------------------------------------------- */
 export default function LandingPage() {
-const [data, setData] = useState<SectorData[]>([]);
+  const [data, setData] = useState<SectorData[]>([]);
   const [previousData, setPreviousData] = useState<SectorData[]>([]);
   const [latestAnalysisDate, setLatestAnalysisDate] = useState<string | null>(null);
   const [portfolioData, setPortfolioData] = useState<PortfolioRecommendationData[]>([]);
@@ -173,7 +101,6 @@ const [data, setData] = useState<SectorData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-// === UPDATE the useEffect fetch (replace the whole try block) ===
   useEffect(() => {
     const fetchPublicData = async () => {
       setLoading(true);
@@ -182,14 +109,13 @@ const [data, setData] = useState<SectorData[]>([]);
         const [dashboardResponse, dateResponse, portfolioResponse] = await Promise.all([
           api.get('/api/v1/dashboard/latest'),
           api.get('/api/v1/latest-analysis-date'),
-          api.get('/api/v1/portfolio/latest')   // ← NEW
+          api.get('/api/v1/portfolio/latest')
         ]);
         
         setData(dashboardResponse.data.currentData || []);
         setPreviousData(dashboardResponse.data.previousData || []);
         setLatestAnalysisDate(dateResponse.data.latest_date);
 
-        // ← NEW: Portfolio data
         const portData = portfolioResponse.data.latestData || [];
         setPortfolioData(portData);
         if (portData.length > 0) {
@@ -211,7 +137,7 @@ const [data, setData] = useState<SectorData[]>([]);
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
 
-      {/* HERO */}
+      {/* SECTION 1: HERO */}
       <section className="relative bg-slate-900 text-white min-h-[100dvh] flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(#334155_0.8px,transparent_1px)] [background-size:4px_4px]" />
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900" />
@@ -234,11 +160,11 @@ const [data, setData] = useState<SectorData[]>([]);
 
             <div className="flex flex-wrap gap-4">
               <Link href="/login?register=true" className="inline-flex items-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 shadow-xl shadow-emerald-900/30">
-                Get Started Free
+                Get Started
                 <ChevronRight className="ml-3 w-5 h-5" />
               </Link>
-              <Link href="#weekly-analysis" className="inline-flex items-center px-8 py-4 border border-white/30 hover:bg-white/10 text-white font-semibold rounded-2xl transition-all">
-                See Latest Analysis
+              <Link href="#products" className="inline-flex items-center px-8 py-4 border border-white/30 hover:bg-white/10 text-white font-semibold rounded-2xl transition-all">
+                Explore Platform
               </Link>
             </div>
           </div>
@@ -274,78 +200,151 @@ const [data, setData] = useState<SectorData[]>([]);
         </div>
       </section>
 
-      {/* CHOOSE YOUR EDGE – 3x3 MATRIX */}
-      <section className="py-24 bg-white">
+      {/* ==================== SECTION 2: OUR KEY PRODUCTS (COMPACT & PROFESSIONAL) ==================== */}
+      <section id="products" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold tracking-tight text-slate-900">Choose Your Edge</h2>
-            <p className="mt-5 text-lg text-slate-600 max-w-2xl mx-auto">
-              Match your investment horizon and risk tolerance with proven sector strategies.
+          <div className="text-center mb-12">
+            <span className="text-sm font-bold tracking-widest text-slate-400 uppercase">Our Key Products</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mt-3 tracking-tight">
+              A Complete Quantitative Framework
+            </h2>
+            <p className="mt-4 text-slate-600 max-w-2xl mx-auto text-lg">
+              We bridge the gap between macroeconomic trends and individual stock selection through a systematic, two-phase approach.
             </p>
           </div>
 
-          <StrategyMatrix />
+          {/* Compact Side-by-Side Layout */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Product 1 */}
+            <div className="p-8 rounded-2xl border border-slate-200 bg-slate-50 hover:border-slate-300 transition-colors">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                  <BarChartHorizontalBig className="w-6 h-6 text-slate-800" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Sector Rotation Signals</h3>
+              </div>
+              <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                Algorithmic momentum analysis across all 11 GICS sectors. Identify market leadership and adjust your asset allocation before trends become mainstream.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-center text-sm text-slate-700 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
+                  Weekly closing-data analysis
+                </li>
+                <li className="flex items-center text-sm text-slate-700 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
+                  Definitive Bullish/Bearish regime indicators
+                </li>
+                <li className="flex items-center text-sm text-slate-700 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
+                  Absolute and relative scoring metrics
+                </li>
+              </ul>
+            </div>
+
+            {/* Product 2 */}
+            <div className="p-8 rounded-2xl border border-slate-200 bg-slate-50 hover:border-slate-300 transition-colors">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                  <PieChart className="w-6 h-6 text-slate-800" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Optimized Portfolios</h3>
+              </div>
+              <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                Ready-to-execute equity baskets derived directly from our sector signals. We isolate high-conviction stocks within leading sectors to construct balanced portfolios.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-center text-sm text-slate-700 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
+                  Concentrated 3, 5, and 8-stock configurations
+                </li>
+                <li className="flex items-center text-sm text-slate-700 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
+                  Risk-adjusted weighting methodologies
+                </li>
+                <li className="flex items-center text-sm text-slate-700 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
+                  Continuous monitoring and rebalancing alerts
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Compact 9-Strategy Bar */}
+          <div className="mt-6 p-5 rounded-2xl border border-slate-200 bg-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <Layers className="w-5 h-5 text-slate-400" />
+              <span className="text-sm font-semibold text-slate-800">Customizable across 9 distinct mandates:</span>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-600 font-medium">
+              <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-slate-400"/> Low Risk</span>
+              <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4 text-slate-400"/> Medium Risk</span>
+              <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-slate-400"/> High Risk</span>
+              <span className="hidden md:inline text-slate-300">|</span>
+              <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-slate-400"/> Weekly / Monthly / Yearly</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* WEEKLY ANALYSIS TABLE */}
-      <section id="weekly-analysis" className="py-24 bg-slate-50">
+      {/* ==================== SECTION 3: PHASE 1 (SECTOR ALLOCATION) ==================== */}
+      <section id="weekly-analysis" className="py-24 bg-slate-50 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-3 mb-4">
-              <BarChart3 className="w-9 h-9 text-emerald-600" />
-              <h2 className="text-4xl font-bold tracking-tight text-slate-900">Sample Monthly Sector Rotation</h2>
+          <div className="flex flex-col items-center text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-200 text-slate-700 text-xs font-bold tracking-widest mb-4 uppercase">
+              Phase 1
             </div>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Live sample of our flagship <span className="font-semibold text-emerald-700">'Medium Risk'</span> analysis — updated every week.
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4">
+              Macro Sector Allocation
+            </h2>
+            <p className="text-lg text-slate-600 max-w-2xl">
+              Live preview of our <span className="font-semibold text-slate-900">Medium Risk • Monthly Horizon</span> model. We rank all 11 GICS sectors to quantify relative momentum and establish market leadership.
             </p>
-            {!loading && latestAnalysisDate && (
-              <p className="mt-3 text-sm text-slate-500 flex items-center justify-center">
-                <Calendar className="w-4 h-4 mr-1.5" />
-                Latest update: {formattedDate}
-              </p>
-            )}
+            
+            {/* Professional Methodology Note */}
+            <div className="mt-6 flex items-start md:items-center gap-3 text-sm text-slate-600 bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm max-w-3xl text-left md:text-center">
+              <Info className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5 md:mt-0" />
+              <span>
+                <strong className="text-slate-900">Methodology Note:</strong> Quantitative models suggest overweighting sectors ranked 1-3 to capture alpha, while reducing exposure to sectors ranked 9-11 to mitigate drawdown risk.
+              </span>
+            </div>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
             {loading ? (
-              <div className="py-20 text-center text-slate-500">Loading latest sector rankings...</div>
+              <div className="py-20 text-center text-slate-500">Loading sector analytics...</div>
             ) : error ? (
               <div className="py-20 text-center text-red-600">{error}</div>
             ) : (
               <SectorTable data={data} previousData={previousData} />
             )}
           </div>
-
-          <div className="mt-8 text-center">
-            <p className="text-xs text-slate-500 max-w-2xl mx-auto">
-              For educational purposes only. Not investment advice. Past performance does not guarantee future results.
+          
+          {!loading && latestAnalysisDate && (
+            <p className="mt-4 text-xs text-slate-400 text-center font-medium">
+              Data computed for the week of: {formattedDate}
             </p>
-          </div>
+          )}
         </div>
       </section>
 
-      {/* ==================== NEW: PORTFOLIO PREVIEW SECTION ==================== */}
-      <section className="py-24 bg-white">
+      {/* ==================== SECTION 4: PHASE 2 (PORTFOLIO CONSTRUCTION) ==================== */}
+      <section className="py-24 bg-white border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-3 mb-4">
-              <TrendingUp className="w-9 h-9 text-emerald-600" />
-              <h2 className="text-4xl font-bold tracking-tight text-slate-900">Sample Portfolio Recommendations</h2>
+          <div className="flex flex-col items-center text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-200 text-slate-700 text-xs font-bold tracking-widest mb-4 uppercase">
+              Phase 2
             </div>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Real 5-stock examples from our <span className="font-semibold text-emerald-700">Medium Risk • Monthly Horizon</span> strategy
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4">
+              Equity Selection & Portfolio Construction
+            </h2>
+            <p className="text-lg text-slate-600 max-w-2xl">
+              Translating sector momentum into actionable equity positions. Below is a live sample of a <span className="font-semibold text-slate-900">5-stock portfolio</span> generated directly from current market leaders.
             </p>
-            {portfolioLatestDate && (
-              <p className="mt-3 text-sm text-slate-500 flex items-center justify-center">
-                <Calendar className="w-4 h-4 mr-1.5" />
-                Updated: {formatDate(portfolioLatestDate)}
-              </p>
-            )}
           </div>
 
           {loading ? (
-            <div className="py-20 text-center text-slate-500">Loading portfolio examples...</div>
+            <div className="py-20 text-center text-slate-500">Loading portfolio models...</div>
           ) : portfolioData.length > 0 ? (
             <div className="max-w-6xl mx-auto">
               <PortfolioTable 
@@ -354,36 +353,41 @@ const [data, setData] = useState<SectorData[]>([]);
               />
             </div>
           ) : (
-            <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-3xl">
-              Portfolio recommendations coming soon...
+            <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-2xl border border-slate-200">
+              Portfolio models currently computing...
             </div>
           )}
 
-          <div className="text-center mt-12">
+          {/* Professional CTA Box */}
+          <div className="mt-16 bg-slate-900 rounded-3xl p-10 md:p-12 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
+            <div className="text-left">
+              <h3 className="text-2xl font-bold text-white mb-2">Unlock Full Platform Access</h3>
+              <p className="text-slate-400 max-w-lg text-sm md:text-base leading-relaxed">
+                Access complete 3, 5, and 8-stock portfolio configurations, historical backtesting data, and all 9 strategic mandates tailored to your specific investment criteria.
+              </p>
+            </div>
             <Link 
               href="/login?register=true"
-              className="inline-flex items-center px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all text-lg shadow-xl shadow-emerald-900/30"
+              className="inline-flex items-center justify-center px-8 py-4 bg-white hover:bg-slate-100 text-slate-900 font-semibold rounded-xl transition-all whitespace-nowrap flex-shrink-0"
             >
-              Explore More Portfolio Sizes (3 / 5 / 8 stocks): Free Signup
-              <ChevronRight className="ml-3 w-5 h-5" />
+              <Lock className="w-4 h-4 mr-2 text-slate-500" />
+              Access Dashboard
+              <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
-            <p className="mt-4 text-xs text-slate-500">Full historical data &amp; Pro access available after login</p>
           </div>
         </div>
       </section>
 
       {/* FINAL CTA */}
-      <section className="py-28 bg-slate-900 text-white text-center">
+      <section className="py-24 bg-slate-50 border-t border-slate-200 text-center">
         <div className="max-w-2xl mx-auto px-6">
-          <h2 className="text-5xl font-bold tracking-tight">Ready to invest smarter?</h2>
-          <p className="mt-6 text-xl text-slate-400">Join thousands of investors getting weekly sector signals.</p>
+          <h2 className="text-4xl font-bold tracking-tight text-slate-900">Ready to systemize your strategy?</h2>
+          <p className="mt-4 text-lg text-slate-600">Join professionals utilizing our quantitative framework to navigate market cycles.</p>
           
-          <Link href="/login?register=true" className="mt-10 inline-flex items-center px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 text-lg">
-            Start Free Today
-            <Users className="ml-3 w-6 h-6" />
+          <Link href="/login?register=true" className="mt-8 inline-flex items-center px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all active:scale-95">
+            Get Started Now
+            <ArrowRight className="ml-2 w-5 h-5" />
           </Link>
-          
-          <p className="mt-6 text-xs text-slate-500">No credit card required • Cancel anytime</p>
         </div>
       </section>
     </div>
