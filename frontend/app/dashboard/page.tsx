@@ -19,7 +19,7 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/services/api';
 
 /* ---------------------------------------------------
-   STRATEGY CARD – Premium Clean Version
+   STRATEGY CARD – Lighter Clean Version
 --------------------------------------------------- */
 
 type StrategyCardProps = {
@@ -41,16 +41,16 @@ const StrategyCard = ({
 }: StrategyCardProps) => {
   const riskConfig = {
     Low: {
-      color: 'bg-emerald-500',
-      icon: <Shield className="w-6 h-6 text-emerald-600" />,
+      color: 'bg-emerald-400', // Lighter accent
+      icon: <Shield className="w-6 h-6 text-emerald-500" />, // Lighter icon
     },
     Medium: {
-      color: 'bg-amber-500',
-      icon: <ShieldCheck className="w-6 h-6 text-amber-600" />,
+      color: 'bg-amber-400',
+      icon: <ShieldCheck className="w-6 h-6 text-amber-500" />,
     },
     High: {
-      color: 'bg-rose-500',
-      icon: <ShieldAlert className="w-6 h-6 text-rose-600" />,
+      color: 'bg-rose-400',
+      icon: <ShieldAlert className="w-6 h-6 text-rose-500" />,
     },
   };
 
@@ -73,13 +73,13 @@ const StrategyCard = ({
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         {config.icon}
-        <h3 className="text-base font-semibold text-slate-900">
+        <h3 className="text-base font-semibold text-slate-800">
           {riskLevel} Risk
         </h3>
       </div>
 
       {/* Description */}
-      <p className="text-sm text-slate-600 leading-relaxed flex-grow">
+      <p className="text-sm text-slate-500 leading-relaxed flex-grow">
         {description}
       </p>
 
@@ -95,8 +95,8 @@ const StrategyCard = ({
               className={`flex-1 flex items-center justify-center gap-2 text-xs font-medium px-4 py-2.5 rounded-lg transition
                 ${
                   isLocked
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : 'bg-slate-900 text-white hover:bg-emerald-600'
+                    ? 'bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed'
+                    : 'bg-slate-700 text-white hover:bg-emerald-500' // Lighter default button and hover
                 }`}
             >
               {link.icon}
@@ -108,9 +108,9 @@ const StrategyCard = ({
 
       {/* Locked Overlay */}
       {isLocked && (
-        <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] rounded-2xl flex items-center justify-center">
-          <div className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-            <Crown className="w-4 h-4 text-amber-500" />
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] rounded-2xl flex items-center justify-center">
+          <div className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+            <Crown className="w-4 h-4 text-amber-400" />
             PRO Only
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
   if (loading || tierLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-emerald-600" />
+        <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
       </div>
     );
   }
@@ -152,14 +152,14 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-900">
+          <h2 className="text-2xl font-bold text-slate-800">
             Access Restricted
           </h2>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-500">
             Please{' '}
             <Link
               href="/login"
-              className="text-emerald-600 hover:underline"
+              className="text-emerald-500 hover:underline"
             >
               sign in
             </Link>
@@ -174,7 +174,7 @@ export default function DashboardPage() {
   const horizons = [
     {
       name: 'Week',
-      icon: <Clock className="w-6 h-6 text-emerald-600" />,
+      icon: <Clock className="w-6 h-6 text-emerald-500" />,
       scenario: 'week',
       strategies: [
         { riskLevel: 'Low' as const, description: 'Defensive US stocks for capital preservation.' },
@@ -184,7 +184,7 @@ export default function DashboardPage() {
     },
     {
       name: 'Month',
-      icon: <Calendar className="w-6 h-6 text-emerald-600" />,
+      icon: <Calendar className="w-6 h-6 text-emerald-500" />,
       scenario: 'month',
       strategies: [
         { riskLevel: 'Low' as const, description: 'Defensive sector rotation to minimize volatility.' },
@@ -194,7 +194,7 @@ export default function DashboardPage() {
     },
     {
       name: 'Year',
-      icon: <TrendingUp className="w-6 h-6 text-emerald-600" />,
+      icon: <TrendingUp className="w-6 h-6 text-emerald-500" />,
       scenario: 'year',
       strategies: [
         { riskLevel: 'Low' as const, description: 'Stable blue-chip companies for long-term holding.' },
@@ -210,10 +210,10 @@ export default function DashboardPage() {
 
         {/* Header */}
         <div className="mb-10">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-800">
             Investment Strategies
           </h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-500">
             Select a time horizon and risk profile
           </p>
         </div>
@@ -223,7 +223,7 @@ export default function DashboardPage() {
             <section key={horizon.name}>
               <div className="flex items-center gap-3 mb-6">
                 {horizon.icon}
-                <h2 className="text-2xl font-semibold text-slate-900">
+                <h2 className="text-2xl font-semibold text-slate-800">
                   {horizon.name} Horizon
                 </h2>
               </div>
@@ -263,11 +263,11 @@ export default function DashboardPage() {
         </div>
 
         {isFreeUser && (
-          <div className="mt-12 text-center text-sm text-slate-600">
+          <div className="mt-12 text-center text-sm text-slate-500">
             Unlock all strategies with PRO{' '}
             <Link
               href="/upgrade"
-              className="font-semibold text-emerald-600 hover:underline"
+              className="font-semibold text-emerald-500 hover:underline"
             >
               → Upgrade now
             </Link>
