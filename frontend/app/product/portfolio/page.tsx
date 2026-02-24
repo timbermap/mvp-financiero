@@ -90,16 +90,17 @@ export default function PortfolioPage() {
   }
 
   // Enhanced error display for 429 monthly limit (Fallback just in case)
+  // Enhanced error display for 429 monthly limit (Fallback just in case)
   const displayError = error ? (
-    typeof error === 'object' && error?.code === 'MONTHLY_LIMIT_REACHED' ? (
+    typeof error === 'object' && error !== null && 'code' in error && (error as any).code === 'MONTHLY_LIMIT_REACHED' ? (
       <PortfolioStatusMessage
-        type="error"
+        type="error" 
         message={
           <div className="text-center py-8">
             <div className="text-6xl mb-6">⏳</div>
-            <p className="text-xl font-semibold mb-2">{error.message}</p>
+            <p className="text-xl font-semibold mb-2">{(error as any).message}</p>
             <p className="text-sm mb-6">
-              Resets on <span className="font-mono">{error.reset_date}</span>
+              Resets on <span className="font-mono">{(error as any).reset_date}</span>
             </p>
             <Link
               href="/upgrade"
@@ -111,7 +112,7 @@ export default function PortfolioPage() {
         }
       />
     ) : (
-      <PortfolioStatusMessage type="error" message={error} />
+      <PortfolioStatusMessage type="error" message={String(error)} />
     )
   ) : null;
 
