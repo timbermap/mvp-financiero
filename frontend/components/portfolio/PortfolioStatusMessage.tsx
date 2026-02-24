@@ -2,13 +2,17 @@
 
 import React from 'react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
+import type { ReactNode } from 'react';   // ← Added this
 
 interface PortfolioStatusMessageProps {
   type: 'loading' | 'error' | 'no-data';
-  message: string;
+  message: ReactNode;   // ← Changed from string to ReactNode (this was the fix)
 }
 
-const PortfolioStatusMessage: React.FC<PortfolioStatusMessageProps> = ({ type, message }) => {
+const PortfolioStatusMessage: React.FC<PortfolioStatusMessageProps> = ({ 
+  type, 
+  message 
+}) => {
   let icon;
   let iconColorClass;
 
@@ -35,7 +39,7 @@ const PortfolioStatusMessage: React.FC<PortfolioStatusMessageProps> = ({ type, m
       <div className={`${iconColorClass}`}>
         {icon}
       </div>
-      <p>{message}</p>
+      {message}   {/* ← Changed from <p>{message}</p> so rich JSX works perfectly */}
     </div>
   );
 };
