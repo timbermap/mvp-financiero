@@ -22,17 +22,17 @@ function FAQItem({
   onToggle: () => void;
 }) {
   return (
-    <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white mb-3 transition-all duration-200 hover:border-teal-200">
+    <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white mb-3 transition-all duration-200 hover:border-emerald-200">
       <button
         onClick={onToggle}
         className="w-full px-8 py-6 flex items-center justify-between text-left group"
       >
-        <span className="font-semibold text-lg text-slate-800 group-hover:text-teal-700 transition-colors">
+        <span className="font-semibold text-lg text-slate-800 group-hover:text-emerald-700 transition-colors">
           {question}
         </span>
         <ChevronDown
           className={`w-6 h-6 text-slate-400 transition-transform duration-300 ${
-            isOpen ? 'rotate-180 text-teal-600' : ''
+            isOpen ? 'rotate-180 text-emerald-600' : ''
           }`}
         />
       </button>
@@ -67,37 +67,37 @@ export default function FAQPage() {
       category: 'General',
       question: 'Who is this service for?',
       answer:
-        'Designed for retail investors, financial advisors, and portfolio managers using data-driven sector rotation and thematic analysis.',
+        'CurateVista is designed for self-directed retail investors, market researchers, and data enthusiasts utilizing quantitative screening tools and macroeconomic momentum data.',
     },
     {
       category: 'Data',
       question: 'How often is the data updated?',
       answer:
-        'All models refresh weekly after Friday market close. Updated rankings are available before Monday open.',
+        'Our quantitative models refresh weekly after Friday’s market close. Updated sector rankings and model watchlists are available before Monday’s open.',
     },
     {
       category: 'Methodology',
-      question: "What is the difference between 'Signal' and 'Rank'?",
+      question: "What is the difference between 'Trend' and 'Rank'?",
       answer:
-        "'Rank' is ordinal strength (1 = strongest). 'Signal' is qualitative: Bullish, Neutral, or Bearish.",
+        "'Rank' is a mathematical ordinal strength indicator (1 = strongest momentum). 'Trend' is a qualitative categorization based on our algorithms: Bullish, Neutral, or Bearish.",
     },
     {
       category: 'Features',
-      question: 'What investment horizons are available?',
+      question: 'What research parameters are available?',
       answer:
-        'Tactical (1-2 weeks), Intermediate (1-3 months), and Strategic (1 year) across Low, Medium, and High risk profiles.',
+        'Users can filter data screens across Short-term, Medium-term, and Long-term horizons, combined with Low, Balanced, or High-Beta volatility profiles.',
     },
     {
       category: 'Billing',
-      question: 'Can I cancel anytime?',
+      question: 'Can I cancel my subscription anytime?',
       answer:
-        'Yes. Cancel instantly from your dashboard. Access remains active until the billing cycle ends.',
+        'Yes. You can cancel instantly from your dashboard. Your data access will remain active until the end of your current billing cycle.',
     },
     {
       category: 'Billing',
       question: 'Do you offer a free trial?',
       answer:
-        'Yes. We provide a 14-day full-access trial with a 100% refund guarantee.',
+        'Yes. We provide a 14-day full-access trial allowing you to explore all our historical data and model screens with a 100% refund guarantee.',
     },
   ];
 
@@ -109,7 +109,7 @@ export default function FAQPage() {
   return (
     <PageLayout
       title="Frequently Asked Questions"
-      subtitle="Everything you need to know about our platform, data models, and subscriptions."
+      subtitle="Everything you need to know about our data models, platform, and subscriptions."
     >
       <ContentSection title="Browse FAQs">
         {/* Search */}
@@ -122,7 +122,7 @@ export default function FAQPage() {
             placeholder="Search questions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-2xl text-base placeholder:text-slate-400 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all"
+            className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-2xl text-base placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
           />
         </div>
 
@@ -151,8 +151,8 @@ export default function FAQPage() {
             Still have questions? We’re here to help.
           </p>
           <a
-            href="mailto:support@yourdomain.com"
-            className="inline-flex items-center gap-3 bg-teal-600 hover:bg-teal-700 text-white font-medium px-8 py-4 rounded-2xl transition-all active:scale-[0.98]"
+            href="mailto:support@curatevista.com"
+            className="inline-flex items-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-8 py-4 rounded-2xl transition-all active:scale-[0.98]"
           >
             Contact Support
           </a>

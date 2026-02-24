@@ -5,7 +5,7 @@ import api from '@/services/api';
 
 import SectorTable from '@/components/sector/SectorTable';
 import PortfolioTable from '@/components/portfolio/PortfolioTable';
-import type { PortfolioRecommendationData } from '@/components/portfolio/types';
+import type { PortfolioRecommendationData } from '@/components/portfolio/types'; 
 
 import Link from 'next/link';
 import { 
@@ -82,7 +82,7 @@ const HeroSectorCard = ({ sector, signal, momentum, rank }: HeroSectorCardProps)
       
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-52 rounded-2xl bg-slate-800 text-xs text-slate-200 px-4 py-3 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none shadow-2xl border border-slate-700">
         <div className="font-semibold mb-1.5 border-b border-slate-700 pb-2">{sector}</div>
-        <div className="flex justify-between"><span className="text-slate-400">Signal</span><span className="text-white">{signal}</span></div>
+        <div className="flex justify-between"><span className="text-slate-400">Trend</span><span className="text-white">{signal}</span></div>
         <div className="flex justify-between"><span className="text-slate-400">Score</span><span className="text-white">{momentum.toFixed(2)}</span></div>
       </div>
     </div>
@@ -133,6 +133,7 @@ export default function LandingPage() {
 
   const heroSectors = [...data].sort(() => Math.random() - 0.5).slice(0, 4);
   const formattedDate = formatDate(latestAnalysisDate);
+  const portfolioFormattedDate = formatDate(portfolioLatestDate);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
@@ -146,25 +147,25 @@ export default function LandingPage() {
           <div className="space-y-8">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-xs font-medium tracking-widest uppercase">Live Market Intelligence</span>
+              <span className="text-xs font-medium tracking-widest uppercase">Quantitative Market Research</span>
             </div>
 
             <h1 className="text-6xl md:text-7xl font-bold tracking-tighter leading-none">
-              Sector Momentum.<br />
-              <span className="bg-gradient-to-r from-emerald-400 to-white bg-clip-text text-transparent">Revealed Weekly.</span>
+              Data-Driven Trends.<br />
+              <span className="bg-gradient-to-r from-emerald-400 to-white bg-clip-text text-transparent">Tracked Weekly.</span>
             </h1>
 
             <p className="text-xl text-slate-300 max-w-lg">
-              Data-driven signals that help you overweight the right sectors at the right time. Built for serious investors.
+              Systematic momentum data designed to power your independent market research. Built for self-directed investors.
             </p>
 
             <div className="flex flex-wrap gap-4">
               <Link href="/login?register=true" className="inline-flex items-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl transition-all active:scale-95 shadow-xl shadow-emerald-900/30">
-                Get Started
+                Access the Data
                 <ChevronRight className="ml-3 w-5 h-5" />
               </Link>
               <Link href="#products" className="inline-flex items-center px-8 py-4 border border-white/30 hover:bg-white/10 text-white font-semibold rounded-2xl transition-all">
-                Explore Platform
+                Explore CurateVista
               </Link>
             </div>
           </div>
@@ -192,7 +193,7 @@ export default function LandingPage() {
               <div className="text-right px-2">
                 <p className="text-xs text-slate-500 flex items-center justify-end">
                   <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                  Analysis Date: {formattedDate}
+                  Data Computed: {formattedDate}
                 </p>
               </div>
             )}
@@ -200,20 +201,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ==================== SECTION 2: OUR KEY PRODUCTS (COMPACT & PROFESSIONAL) ==================== */}
+      {/* ==================== SECTION 2: OUR KEY PRODUCTS ==================== */}
       <section id="products" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
-            <span className="text-sm font-bold tracking-widest text-slate-400 uppercase">Our Key Products</span>
+            <span className="text-sm font-bold tracking-widest text-slate-400 uppercase">Research Tools</span>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mt-3 tracking-tight">
-              A Complete Quantitative Framework
+              A Systematic Analytics Framework
             </h2>
             <p className="mt-4 text-slate-600 max-w-2xl mx-auto text-lg">
-              We bridge the gap between macroeconomic trends and individual stock selection through a systematic, two-phase approach.
+              CurateVista provides objective, data-driven metrics to help you analyze macroeconomic trends and filter equities mechanically.
             </p>
           </div>
 
-          {/* Compact Side-by-Side Layout */}
           <div className="grid md:grid-cols-2 gap-6">
             {/* Product 1 */}
             <div className="p-8 rounded-2xl border border-slate-200 bg-slate-50 hover:border-slate-300 transition-colors">
@@ -221,10 +221,10 @@ export default function LandingPage() {
                 <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100">
                   <BarChartHorizontalBig className="w-6 h-6 text-slate-800" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Sector Rotation Signals</h3>
+                <h3 className="text-xl font-bold text-slate-900">Sector Momentum Analytics</h3>
               </div>
               <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                Algorithmic momentum analysis across all 11 GICS sectors. Identify market leadership and adjust your asset allocation before trends become mainstream.
+                Track algorithmic momentum across all 11 GICS sectors. Use our data to identify shifting market leadership and relative strength based on mathematical models.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-center text-sm text-slate-700 font-medium">
@@ -233,7 +233,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-center text-sm text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
-                  Definitive Bullish/Bearish regime indicators
+                  Objective momentum regime indicators
                 </li>
                 <li className="flex items-center text-sm text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
@@ -248,46 +248,45 @@ export default function LandingPage() {
                 <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100">
                   <PieChart className="w-6 h-6 text-slate-800" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Optimized Portfolios</h3>
+                <h3 className="text-xl font-bold text-slate-900">Model Watchlists & Screens</h3>
               </div>
               <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                Ready-to-execute equity baskets derived directly from our sector signals. We isolate high-conviction stocks within leading sectors to construct balanced portfolios.
+                Data-generated equity watchlists derived from our sector analytics. We apply mechanical filters to highlight stocks within leading sectors to streamline your research.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-center text-sm text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
-                  Concentrated 3, 5, and 8-stock configurations
+                  3, 5, and 8-stock model screens
                 </li>
                 <li className="flex items-center text-sm text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
-                  Risk-adjusted weighting methodologies
+                  Mathematical weighting metrics
                 </li>
                 <li className="flex items-center text-sm text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-slate-400 mr-3 flex-shrink-0" />
-                  Continuous monitoring and rebalancing alerts
+                  Continuous tracking and data updates
                 </li>
               </ul>
             </div>
           </div>
 
-          {/* Compact 9-Strategy Bar */}
           <div className="mt-6 p-5 rounded-2xl border border-slate-200 bg-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
             <div className="flex items-center gap-3">
               <Layers className="w-5 h-5 text-slate-400" />
-              <span className="text-sm font-semibold text-slate-800">Customizable across 9 distinct mandates:</span>
+              <span className="text-sm font-semibold text-slate-800">Filter data across 9 distinct parameter sets:</span>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-600 font-medium">
-              <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-slate-400"/> Low Risk</span>
-              <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4 text-slate-400"/> Medium Risk</span>
-              <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-slate-400"/> High Risk</span>
+              <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-slate-400"/> Low Volatility</span>
+              <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4 text-slate-400"/> Balanced</span>
+              <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-slate-400"/> High Beta</span>
               <span className="hidden md:inline text-slate-300">|</span>
-              <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-slate-400"/> Weekly / Monthly / Yearly</span>
+              <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-slate-400"/> Short / Medium / Long Term</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ==================== SECTION 3: PHASE 1 (SECTOR ALLOCATION) ==================== */}
+      {/* ==================== SECTION 3: PHASE 1 ==================== */}
       <section id="weekly-analysis" className="py-24 bg-slate-50 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col items-center text-center mb-10">
@@ -295,20 +294,30 @@ export default function LandingPage() {
               Phase 1
             </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4">
-              Macro Sector Allocation
+              Sector Trend Analysis
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl">
-              Live preview of our <span className="font-semibold text-slate-900">Medium Risk • Monthly Horizon</span> model. We rank all 11 GICS sectors to quantify relative momentum and establish market leadership.
+              A live look at our baseline momentum model. We objectively rank all 11 GICS sectors to quantify relative strength and track market leadership.
             </p>
             
             {/* Professional Methodology Note */}
             <div className="mt-6 flex items-start md:items-center gap-3 text-sm text-slate-600 bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm max-w-3xl text-left md:text-center">
               <Info className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5 md:mt-0" />
               <span>
-                <strong className="text-slate-900">Methodology Note:</strong> Quantitative models suggest overweighting sectors ranked 1-3 to capture alpha, while reducing exposure to sectors ranked 9-11 to mitigate drawdown risk.
+                <strong className="text-slate-900">Methodology Note:</strong> Our historical backtesting framework focuses on the top-ranked sectors to track momentum, while identifying the lowest-ranked sectors to monitor potential weakness. This data is for informational purposes only.
               </span>
             </div>
           </div>
+
+          {/* DATE BADGE MOVED HERE (ABOVE SECTOR TABLE) */}
+          {!loading && latestAnalysisDate && (
+            <div className="mb-6 flex justify-center">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium border border-slate-200 shadow-sm">
+                <Calendar className="w-4 h-4 text-slate-500" />
+                Data computed for the week of: <span className="font-semibold text-slate-900">{formattedDate}</span>
+              </span>
+            </div>
+          )}
 
           <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
             {loading ? (
@@ -319,51 +328,55 @@ export default function LandingPage() {
               <SectorTable data={data} previousData={previousData} />
             )}
           </div>
-          
-          {!loading && latestAnalysisDate && (
-            <p className="mt-4 text-xs text-slate-400 text-center font-medium">
-              Data computed for the week of: {formattedDate}
-            </p>
-          )}
         </div>
       </section>
 
-      {/* ==================== SECTION 4: PHASE 2 (PORTFOLIO CONSTRUCTION) ==================== */}
+      {/* ==================== SECTION 4: PHASE 2 ==================== */}
       <section className="py-24 bg-white border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col items-center text-center mb-12">
+          <div className="flex flex-col items-center text-center mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-200 text-slate-700 text-xs font-bold tracking-widest mb-4 uppercase">
               Phase 2
             </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4">
-              Equity Selection & Portfolio Construction
+              Equity Screening & Model Watchlists
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl">
-              Translating sector momentum into actionable equity positions. Below is a live sample of a <span className="font-semibold text-slate-900">5-stock portfolio</span> generated directly from current market leaders.
+              Translating sector data into targeted watchlists. Below is a sample <span className="font-semibold text-slate-900">5-stock model screen</span> generated mechanically from current market leaders.
             </p>
           </div>
 
+          {/* DATE BADGE MOVED HERE (ABOVE PORTFOLIO TABLE) */}
+          {!loading && portfolioLatestDate && portfolioData.length > 0 && (
+            <div className="mb-6 flex justify-center">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-50 text-slate-700 text-sm font-medium border border-slate-200 shadow-sm">
+                <Calendar className="w-4 h-4 text-slate-500" />
+                Data computed for the week of: <span className="font-semibold text-slate-900">{portfolioFormattedDate}</span>
+              </span>
+            </div>
+          )}
+
           {loading ? (
-            <div className="py-20 text-center text-slate-500">Loading portfolio models...</div>
+            <div className="py-20 text-center text-slate-500">Loading model screens...</div>
           ) : portfolioData.length > 0 ? (
             <div className="max-w-6xl mx-auto">
               <PortfolioTable 
-                title="5-Stock Balanced Portfolio" 
+                title="5-Stock Model Watchlist" 
                 data={portfolioData.filter(item => item.portfolio_size === 5)} 
               />
             </div>
           ) : (
             <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-2xl border border-slate-200">
-              Portfolio models currently computing...
+              Data models currently computing...
             </div>
           )}
 
           {/* Professional CTA Box */}
           <div className="mt-16 bg-slate-900 rounded-3xl p-10 md:p-12 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
             <div className="text-left">
-              <h3 className="text-2xl font-bold text-white mb-2">Unlock Full Platform Access</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">Unlock Full Research Access</h3>
               <p className="text-slate-400 max-w-lg text-sm md:text-base leading-relaxed">
-                Access complete 3, 5, and 8-stock portfolio configurations, historical backtesting data, and all 9 strategic mandates tailored to your specific investment criteria.
+                Access complete 3, 5, and 8-stock model watchlists, historical backtesting data, and all 9 parameter sets tailored to your research criteria.
               </p>
             </div>
             <Link 
@@ -378,16 +391,34 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="py-24 bg-slate-50 border-t border-slate-200 text-center">
-        <div className="max-w-2xl mx-auto px-6">
-          <h2 className="text-4xl font-bold tracking-tight text-slate-900">Ready to systemize your strategy?</h2>
-          <p className="mt-4 text-lg text-slate-600">Join professionals utilizing our quantitative framework to navigate market cycles.</p>
+      {/* FINAL CTA & DISCLAIMER */}
+      <section className="py-24 bg-slate-50 border-t border-slate-200 text-center flex flex-col items-center">
+        <div className="max-w-2xl mx-auto px-6 mb-16">
+          <h2 className="text-4xl font-bold tracking-tight text-slate-900">Ready to systemize your market research?</h2>
+          <p className="mt-4 text-lg text-slate-600">Join self-directed investors utilizing the CurateVista framework to analyze market cycles objectively.</p>
           
           <Link href="/login?register=true" className="mt-8 inline-flex items-center px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all active:scale-95">
             Get Started Now
             <ArrowRight className="ml-2 w-5 h-5" />
           </Link>
+        </div>
+
+        {/* LEGAL DISCLAIMER (CRÍTICO PARA TU PROTECCIÓN REGULATORIA) */}
+        <div className="max-w-5xl mx-auto px-6 text-left">
+          <div className="border-t border-slate-300 pt-8 text-xs text-slate-500 leading-relaxed space-y-4">
+            <p>
+              <strong>Disclaimer:</strong> CurateVista.com is a data and financial technology platform, not a registered investment advisor, broker-dealer, or financial institution. The information, software, and tools provided on this site are strictly for educational and informational purposes only and do not constitute financial, investment, or legal advice.
+            </p>
+            <p>
+              The algorithmic outputs, sector rankings, and model watchlists generated by CurateVista are based on mathematical models and historical data. Past performance is not indicative of future results. No representation is being made that any account will or is likely to achieve profits or losses similar to those shown in any backtest or model. All investments involve risk, including the possible loss of principal.
+            </p>
+            <p>
+              Users are solely responsible for their own investment decisions. We strongly encourage you to conduct your own independent research or consult with a qualified financial professional before making any financial decisions based on the data provided by our platform.
+            </p>
+            <p className="text-center pt-4">
+              © {new Date().getFullYear()} CurateVista. All rights reserved.
+            </p>
+          </div>
         </div>
       </section>
     </div>

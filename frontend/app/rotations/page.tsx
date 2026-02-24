@@ -3,26 +3,26 @@ import PageLayout, { ContentSection } from '@/components/PageLayout';
 export default function RotationsPage() {
   return (
     <PageLayout
-      title="Sector Rotation Analysis"
-      subtitle="Identify market leadership and capitalize on shifting trends with our proprietary rotation models."
+      title="Sector Momentum Analytics"
+      subtitle="Track market leadership and monitor shifting macroeconomic trends with our algorithmic data models."
     >
-      <ContentSection title="What is Sector Rotation?">
+      <ContentSection title="Understanding Sector Rotation Data">
         <p>
-          Sector rotation is an investment strategy that involves moving capital from one industry sector to another in an attempt to outperform the overall market. The goal is to position your portfolio in sectors that are poised for growth while avoiding those that are weakening.
+          Sector rotation is a macroeconomic concept that tracks how institutional volume shifts between different industry sectors over time. The goal of tracking this rotation is to mathematically identify which sectors are demonstrating relative strength (leadership) and which are showing technical weakness (lagging).
         </p>
       </ContentSection>
-      <ContentSection title="Our Approach">
+      <ContentSection title="Our Quantitative Approach">
         <p>
-          Our models analyze a combination of factors to determine the strength and momentum of each market sector. We focus on:
+          Our algorithms compute a combination of mathematical factors to quantify the momentum of each GICS market sector. We focus strictly on objective data points:
         </p>
-        <ul>
-          <li><strong>Relative Strength:</strong> How a sector performs compared to the broader market (e.g., S&P 500).</li>
-          <li><strong>Momentum:</strong> The rate of acceleration of a sector's price trend, both short-term and long-term.</li>
-          <li><strong>Volatility:</strong> Assessing the risk and stability of a sector's performance.</li>
-          <li><strong>Volume Analysis:</strong> Tracking institutional capital flows by analyzing trading volume patterns.</li>
+        <ul className="list-disc list-inside space-y-3 mt-4 text-slate-600 leading-relaxed">
+          <li><strong>Relative Strength:</strong> How a sector performs statistically compared to a broader market baseline (e.g., S&P 500).</li>
+          <li><strong>Momentum:</strong> The rate of acceleration of a sector's price trend, calculated across both short-term and long-term moving averages.</li>
+          <li><strong>Volatility:</strong> Assessing the standard deviation and historical stability of a sector's price action.</li>
+          <li><strong>Volume Flow:</strong> Tracking institutional activity by analyzing unusual or sustained trading volume patterns.</li>
         </ul>
-        <p>
-          This multi-factor approach provides a robust signal, helping you make informed decisions for a 2-4 week tactical horizon (Weekly Model) or a multi-month strategic view (Monthly/Yearly Models).
+        <p className="mt-6">
+          This multi-factor calculation generates an objective trend score, providing you with clear, quantitative data for short-term (tactical) or long-term (strategic) market research.
         </p>
       </ContentSection>
     </PageLayout>

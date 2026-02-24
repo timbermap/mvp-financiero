@@ -81,7 +81,7 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ✅ Normalize subscription tier
+  // Normalize subscription tier
   const tierRaw = userProfile?.subscription_tier?.toUpperCase() || 'FREE';
   const isPro = tierRaw === 'PRO';
 
@@ -97,15 +97,16 @@ export default function Navbar() {
                 <BarChart3 className="w-5 h-5 text-white" />
               </div>
               <span className="text-2xl font-bold tracking-tighter text-slate-900 group-hover:text-emerald-600 transition-colors">
-                Horizon
+                CurateVista
               </span>
             </Link>
 
             {user && (
               <div className="hidden md:flex items-center h-full gap-2">
                 <NavLink href="/dashboard">Dashboard</NavLink>
-                <NavLink href="/rotations?risk=medium&horizon=month">Rotation</NavLink>
-                <NavLink href="/portfolio?risk=medium&horizon=month">Portfolio</NavLink>
+                {/* URLs mantenidas, textos cambiados por seguridad regulatoria */}
+                <NavLink href="/rotations?risk=medium&horizon=month">Sector Data</NavLink>
+                <NavLink href="/portfolio?risk=medium&horizon=month">Model Screens</NavLink>
               </div>
             )}
           </div>
@@ -129,7 +130,7 @@ export default function Navbar() {
                       </p>
                     </div>
 
-                    {/* ✅ FREE / PRO Badge */}
+                    {/* FREE / PRO Badge */}
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide
                         ${isPro
@@ -147,13 +148,25 @@ export default function Navbar() {
                     <div className="absolute top-full right-0 mt-3 w-72">
                       <div className="bg-white rounded-2xl shadow-xl ring-1 ring-black/5 border border-slate-100 overflow-hidden">
 
-                        <div className="px-6 py-5 border-b border-slate-100 bg-slate-50">
-                          <p className="font-semibold text-slate-900">
-                            {userProfile?.email || user.email}
-                          </p>
-                          <p className="text-xs text-slate-500 mt-1">
-                            {isPro ? 'Pro plan active' : 'Free plan'}
-                          </p>
+                        <div className="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                          <div>
+                            <p className="font-semibold text-slate-900 truncate max-w-[150px]">
+                              {userProfile?.email || user.email}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1">
+                              {isPro ? 'Pro plan active' : 'Free plan'}
+                            </p>
+                          </div>
+                          {/* Visual badge in dropdown */}
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide
+                              ${isPro
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'bg-slate-200 text-slate-600'
+                              }`}
+                          >
+                            {tierRaw}
+                          </span>
                         </div>
 
                         <div className="p-2">
@@ -209,20 +222,21 @@ export default function Navbar() {
 
       {/* MOBILE MENU */}
       {isMobileMenuOpen && (
-        <div ref={mobileMenuRef} className="md:hidden bg-white border-t border-slate-200 py-4">
+        <div ref={mobileMenuRef} className="md:hidden bg-white border-t border-slate-200 py-4 shadow-lg absolute w-full">
           <div className="px-6 space-y-1">
             {user ? (
               <>
-                <Link href="/dashboard" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Dashboard</Link>
-                <Link href="/rotations?risk=medium&horizon=month" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Rotation</Link>
-                <Link href="/portfolio?risk=medium&horizon=month" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Portfolio</Link>
-                <Link href="/settings" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Settings</Link>
+                <Link onClick={() => setIsMobileMenuOpen(false)} href="/dashboard" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Dashboard</Link>
+                <Link onClick={() => setIsMobileMenuOpen(false)} href="/rotations?risk=medium&horizon=month" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Sector Data</Link>
+                <Link onClick={() => setIsMobileMenuOpen(false)} href="/portfolio?risk=medium&horizon=month" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Model Screens</Link>
+                <div className="h-px bg-slate-100 my-2" />
+                <Link onClick={() => setIsMobileMenuOpen(false)} href="/settings" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Settings</Link>
                 <button onClick={handleLogout} className="w-full text-left px-4 py-3 font-semibold text-red-600 hover:bg-red-50 rounded-2xl">Logout</button>
               </>
             ) : (
               <>
-                <Link href="/login" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Log in</Link>
-                <Link href="/login?register=true" className="block w-full text-center px-4 py-3 font-semibold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700">Get started free</Link>
+                <Link onClick={() => setIsMobileMenuOpen(false)} href="/login" className="block px-4 py-3 font-semibold text-slate-700 rounded-2xl hover:bg-slate-100">Log in</Link>
+                <Link onClick={() => setIsMobileMenuOpen(false)} href="/login?register=true" className="block w-full text-center px-4 py-3 font-semibold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 mt-2">Get started free</Link>
               </>
             )}
           </div>
