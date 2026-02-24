@@ -18,7 +18,7 @@ import PortfolioStatusMessage from '@/components/portfolio/PortfolioStatusMessag
 import PortfolioTable from '@/components/portfolio/PortfolioTable';
 
 import { usePortfolioData } from '@/components/portfolio/usePortfolioData';
-import api from '@/services/api'; // <-- Added API import
+import api from '@/services/api';
 
 export default function PortfolioPage() {
   const searchParams = useSearchParams();
@@ -57,7 +57,7 @@ export default function PortfolioPage() {
       return;
     }
 
-    // 2. NEW: Redirect if limit reached and trying to access restricted URL
+    // 2. Redirect if limit reached and trying to access restricted URL
     if (!usageLoading && isLimitReached) {
       if (risk !== 'medium' || horizon !== 'month') {
         router.replace('/dashboard'); // replace prevents them from getting stuck in a back-button loop
@@ -90,7 +90,6 @@ export default function PortfolioPage() {
   }
 
   // Enhanced error display for 429 monthly limit (Fallback just in case)
-  // Enhanced error display for 429 monthly limit (Fallback just in case)
   const displayError = error ? (
     typeof error === 'object' && error !== null && 'code' in error && (error as any).code === 'MONTHLY_LIMIT_REACHED' ? (
       <PortfolioStatusMessage
@@ -106,7 +105,7 @@ export default function PortfolioPage() {
               href="/upgrade"
               className="inline-block bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-3 rounded-2xl font-semibold hover:scale-105 transition"
             >
-              Upgrade to PRO – Unlimited clicks
+              Upgrade to PRO – Unlimited data queries
             </Link>
           </div>
         }
@@ -120,7 +119,7 @@ export default function PortfolioPage() {
     <div className="max-w-6xl mx-auto px-6 py-10">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">
-          Product: Portfolio
+          Product: Model Screens
         </h1>
       </div>
 
@@ -128,7 +127,7 @@ export default function PortfolioPage() {
       {loading ? (
         <PortfolioStatusMessage
           type="loading"
-          message="Loading portfolio recommendations..."
+          message="Loading model screens..."
         />
       ) : displayError ? (
         displayError
@@ -142,13 +141,13 @@ export default function PortfolioPage() {
             selectedDate={selectedDate}
             dates={dates}
             onDateChange={setSelectedDate}
-            isLimitReached={isLimitReached} // <-- Pass the limit state to the header
+            isLimitReached={isLimitReached} 
           />
 
           {VALID_PORTFOLIO_SIZES.map((size) => (
             <PortfolioTable
               key={size}
-              title={`${size}-Ticker Portfolio`}
+              title={`${size}-Ticker Watchlist`}
               data={groupedPortfolioData[size]}
             />
           ))}

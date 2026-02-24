@@ -1,4 +1,3 @@
-// src/app/products/rotations/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -66,7 +65,7 @@ export default function RotationsPage() {
       return;
     }
 
-    // 2. NEW: Redirect if limit reached and trying to access restricted URL
+    // 2. Redirect if limit reached and trying to access restricted URL
     if (!usageLoading && isLimitReached) {
       if (risk !== 'medium' || horizon !== 'month') {
         router.replace('/dashboard');
@@ -95,7 +94,7 @@ export default function RotationsPage() {
         })
         .catch(err => {
           console.error("Failed to fetch dates:", err);
-          setError("Could not load available analysis dates.");
+          setError("Could not load available data dates.");
           setLoading(false);
         });
     }
@@ -145,7 +144,7 @@ export default function RotationsPage() {
                 href="/upgrade"
                 className="inline-block bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-3 rounded-2xl font-semibold hover:scale-105 transition"
               >
-                Upgrade to PRO – Unlimited clicks
+                Upgrade to PRO – Unlimited data queries
               </Link>
             </div>
           );
@@ -153,7 +152,7 @@ export default function RotationsPage() {
           return;
         }
 
-        setError("An error occurred while fetching the analysis data.");
+        setError("An error occurred while fetching the analytics data.");
       } finally {
         setLoading(false);
       }
@@ -186,7 +185,7 @@ export default function RotationsPage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Product: Sector Rotations</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Product: Sector Analytics</h1>
       </div>
 
       <SectorHeader
@@ -195,11 +194,11 @@ export default function RotationsPage() {
         selectedDate={selectedDate}
         dates={dates}
         onDateChange={setSelectedDate}
-        isLimitReached={isLimitReached} // <-- Pass the limit state
+        isLimitReached={isLimitReached} 
       />
 
       {loading ? (
-        <StatusMessage>Loading analysis...</StatusMessage>
+        <StatusMessage>Loading analytics...</StatusMessage>
       ) : error ? (
         typeof error === 'string' ? (
           <StatusMessage><AlertTriangle className="w-8 h-8 text-red-500" /> {error}</StatusMessage>
@@ -209,7 +208,7 @@ export default function RotationsPage() {
       ) : dates.length === 0 ? (
         <StatusMessage>
           <AlertTriangle className="w-8 h-8 text-amber-500" />
-          No analysis found for the selected risk and horizon criteria.
+          No data found for the selected parameter and horizon criteria.
         </StatusMessage>
       ) : (
         <SectorTable data={data} previousData={previousData} />

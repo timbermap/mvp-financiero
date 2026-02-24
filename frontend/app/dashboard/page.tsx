@@ -20,7 +20,7 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/services/api';
 
 /* ---------------------------------------------------
-   STRATEGY CARD
+   STRATEGY CARD (RENOMBRADO VISUALMENTE A RESEARCH MODEL)
 --------------------------------------------------- */
 
 type StrategyCardProps = {
@@ -42,14 +42,17 @@ const StrategyCard = ({
 }: StrategyCardProps) => {
   const riskConfig = {
     Low: {
+      label: 'Low Volatility',
       color: 'bg-emerald-400',
       icon: <Shield className="w-6 h-6 text-emerald-500" />,
     },
     Medium: {
+      label: 'Balanced',
       color: 'bg-amber-400',
       icon: <ShieldCheck className="w-6 h-6 text-amber-500" />,
     },
     High: {
+      label: 'High Beta',
       color: 'bg-rose-400',
       icon: <ShieldAlert className="w-6 h-6 text-rose-500" />,
     },
@@ -75,7 +78,7 @@ const StrategyCard = ({
       <div className="flex items-center gap-3 mb-4">
         {config.icon}
         <h3 className="text-base font-semibold text-slate-800">
-          {riskLevel} Risk
+          {config.label} Parameter
         </h3>
       </div>
 
@@ -105,7 +108,7 @@ const StrategyCard = ({
           className="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center z-10 hover:bg-white/70 transition cursor-pointer"
         >
           <Crown className="w-8 h-8 text-amber-500 mb-2" />
-          <span className="text-sm font-bold text-slate-800">Limit Reached</span>
+          <span className="text-sm font-bold text-slate-800">Data Limit Reached</span>
           <span className="text-xs font-medium text-slate-600 mt-1 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">
             Upgrade to Unlock
           </span>
@@ -125,7 +128,7 @@ export default function DashboardPage() {
   const [tierLoading, setTierLoading] = useState(true);
   
   const [usage, setUsage] = useState<any>(null);
-  const [usageLoading, setUsageLoading] = useState(true); // <-- NEW: Wait for usage to load
+  const [usageLoading, setUsageLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && user) {
@@ -152,7 +155,6 @@ export default function DashboardPage() {
     }
   }, [subscriptionTier]);
 
-  // Wait until ALL data is loaded before rendering to prevent accidental clicks
   if (loading || tierLoading || usageLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -187,9 +189,9 @@ export default function DashboardPage() {
       icon: <Clock className="w-6 h-6 text-emerald-500" />,
       scenario: 'week',
       strategies: [
-        { riskLevel: 'Low' as const, description: 'Defensive US stocks for capital preservation.' },
-        { riskLevel: 'Medium' as const, description: 'Tactical momentum trades on bullish signals.' },
-        { riskLevel: 'High' as const, description: 'Aggressive short-term plays in volatile sectors.' },
+        { riskLevel: 'Low' as const, description: 'Low-volatility equity tracking for defensive data modeling.' },
+        { riskLevel: 'Medium' as const, description: 'Baseline momentum tracking based on bullish algorithmic signals.' },
+        { riskLevel: 'High' as const, description: 'High-beta sector screening for short-term momentum data.' },
       ],
     },
     {
@@ -197,9 +199,9 @@ export default function DashboardPage() {
       icon: <Calendar className="w-6 h-6 text-emerald-500" />,
       scenario: 'month',
       strategies: [
-        { riskLevel: 'Low' as const, description: 'Defensive sector rotation to minimize volatility.' },
-        { riskLevel: 'Medium' as const, description: 'Core strategy focused on upward trends.' },
-        { riskLevel: 'High' as const, description: 'Emerging sectors with high short-term potential.' },
+        { riskLevel: 'Low' as const, description: 'Defensive sector analytics designed to track minimum volatility.' },
+        { riskLevel: 'Medium' as const, description: 'Core algorithmic model tracking sustained upward macroeconomic trends.' },
+        { riskLevel: 'High' as const, description: 'Screening for emerging sectors exhibiting high relative strength.' },
       ],
     },
     {
@@ -207,9 +209,9 @@ export default function DashboardPage() {
       icon: <TrendingUp className="w-6 h-6 text-emerald-500" />,
       scenario: 'year',
       strategies: [
-        { riskLevel: 'Low' as const, description: 'Stable blue-chip companies for long-term holding.' },
-        { riskLevel: 'Medium' as const, description: 'Cyclical sectors poised for growth.' },
-        { riskLevel: 'High' as const, description: 'Thematic investments in disruptive industries.' },
+        { riskLevel: 'Low' as const, description: 'Large-cap stability data for long-term macroeconomic tracking.' },
+        { riskLevel: 'Medium' as const, description: 'Cyclical sector data models tracking long-term growth trends.' },
+        { riskLevel: 'High' as const, description: 'Thematic data screening for long-term momentum shifts.' },
       ],
     },
   ];
@@ -221,10 +223,10 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="mb-10">
           <h1 className="text-3xl font-bold tracking-tight text-slate-800">
-            Investment Strategies
+            Quantitative Research Models
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            Select a time horizon and risk profile
+            Select a time horizon and volatility parameter to load the data screens.
           </p>
         </div>
 
@@ -234,7 +236,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-4">
               <Clock className="w-6 h-6 text-emerald-600" />
               <div>
-                <p className="font-semibold text-emerald-800">Free clicks remaining this month</p>
+                <p className="font-semibold text-emerald-800">Free data queries remaining this month</p>
                 <p className="text-emerald-700 text-sm">
                   {usage.clicks_used} of {usage.limit} used • {usage.remaining} left
                 </p>
@@ -273,16 +275,18 @@ export default function DashboardPage() {
                       key={strat.riskLevel}
                       riskLevel={strat.riskLevel}
                       description={strat.description}
-                      isLocked={isLocked} // <-- Pass the dynamic lock state
+                      isLocked={isLocked}
                       links={[
                         {
-                          name: 'Rotation',
-                          href: `/product/rotations?risk=${strat.riskLevel.toLowerCase()}&horizon=${horizon.scenario}`,
+                          name: 'Sector Data',
+                          // Cambié /product/rotations a /rotations para alinear con tu Navbar
+                          href: `product/rotations?risk=${strat.riskLevel.toLowerCase()}&horizon=${horizon.scenario}`,
                           icon: <BarChartHorizontalBig className="w-4 h-4" />,
                         },
                         {
-                          name: 'Portfolio',
-                          href: `/product/portfolio?risk=${strat.riskLevel.toLowerCase()}&horizon=${horizon.scenario}`,
+                          name: 'Model Screens',
+                          // Cambié /product/portfolio a /portfolio para alinear con tu Navbar
+                          href: `product/portfolio?risk=${strat.riskLevel.toLowerCase()}&horizon=${horizon.scenario}`,
                           icon: <PieChart className="w-4 h-4" />,
                         },
                       ]}
@@ -296,7 +300,7 @@ export default function DashboardPage() {
 
         {isFreeUser && (
           <div className="mt-12 text-center text-sm text-slate-500">
-            Unlock unlimited strategies with PRO{' '}
+            Unlock unlimited data models with PRO{' '}
             <Link
               href="/upgrade"
               className="font-semibold text-emerald-500 hover:underline"
